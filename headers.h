@@ -9,4 +9,5 @@
 #include <pwd.h>
 
 #include "prompt.h"
+#include "warpHandler/warp.h"
 #endif

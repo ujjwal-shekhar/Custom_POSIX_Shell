@@ -8,12 +8,12 @@ void prompt(char starting_directory[]) {
     /*
     USE OF ChatGPT
     The following if-statement was suggested by ChatGPT-3.5-Turbo
-    the prompt given was : "get computer hostname c"
+    the prompt given was : "get computer hostname C"
     */
 
     if (gethostname(hostname, sizeof(hostname)) != 0) {
         perror("\033[31mgethostname failed\033[0m");
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
 
     // Get the user name
@@ -22,6 +22,7 @@ void prompt(char starting_directory[]) {
 
     if (username == NULL) {
         perror("\033[31mCouldn't fetch user name failed\033[0m");
+        exit(EXIT_FAILURE);
     }
 
     // Check if the currect working directory is inside or outside 
