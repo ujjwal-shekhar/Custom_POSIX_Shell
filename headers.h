@@ -7,6 +7,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <pwd.h>
+#include <ctype.h>
 
 #include "prompt.h"
 #include "warpHandler/warp.h"

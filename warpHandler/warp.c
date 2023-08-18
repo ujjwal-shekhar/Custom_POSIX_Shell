@@ -9,6 +9,8 @@
 
 // Returns 0 : if successful, 1 : if failed
 int warp(char ** command_args, char * errorString, char starting_directory[]) {
+    printf("Warping to %s\n", command_args[1]);
+
     // Iterate over all command_args
     int i = 1;
     while (command_args[i] != NULL) {

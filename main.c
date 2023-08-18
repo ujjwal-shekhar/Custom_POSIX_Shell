@@ -19,6 +19,8 @@ int main()
         char input[4096];
         fgets(input, 4096, stdin);
 
+        // Continue if input is only whitespace characters
+
         // Maintain a list of commands 
         struct Command commands[4096];
         int numCommands = 0;
@@ -32,15 +34,24 @@ int main()
             token = strtok_r(str1, ";", &saveptr1);
             if (token == NULL)
                 break;
-
+            
             for (str2 = token; ; str2 = NULL) {
                 subtoken = strtok_r(str2, "&", &saveptr2);
                 if (subtoken == NULL)
                     break;
 
-                commands[numCommands].command_details = subtoken;
-                commands[numCommands].printProcId = 1;
-                numCommands++;
+                // Check if the subtoken is just whitespace
+                for (int k = 0; k < strlen(subtoken); k++) {
+                    if (!isspace(subtoken[k])) {
+                        commands[numCommands].command_details = subtoken;
+                        commands[numCommands].printProcId = 1;
+                        numCommands++;
+                        break;
+                    }
+                    if (k == strlen(subtoken) - 1) {
+                        continue;
+                    }
+                }                
             }
 
             commands[numCommands - 1].printProcId = 0;
@@ -52,8 +63,9 @@ int main()
             char *command_details = commands[j].command_details;
             char *command_args[4096];
 
+            // Autocompleted by Github copilot
             int i = 0;
-            for (char *token = strtok(command_details, " \n"); token != NULL; token = strtok(NULL, " \n")) {
+            for (char *token = strtok(command_details, " \v\r\f\t\n"); token != NULL; token = strtok(NULL, " \v\r\f\t\n")) {
                 command_args[i] = token;
                 i++;
             }
@@ -73,12 +85,25 @@ int main()
 
             // Check if warp command was entered
             else if ((strncmp(command_args[0], "warp\0", 5) == 0)) {
+                int notWhiteSpace = 0;
+                // Check if the entire command_arg[1] is a whitespace
+                // for (int k = 0; k < strlen(command_args[1]); k++) {
+                //     if (!isspace(command_args[1][k])) {
+                //         notWhiteSpace = 1;
+                //         break;
+                //     }
+                // }
+
                 if (command_args[1] == NULL) {
                     command_args[1] = "~";
                     command_args[2] = NULL;
-                } else {
-                    erroneousFlag = warp(command_args, errorString, starting_directory);
+                } else if (notWhiteSpace == 0) {
+                    command_args[1] = "~";
+                    command_args[2] = NULL;
+                } else if (command_args[1] == "-") {
+                    // Add code for pwd later
                 }
+                erroneousFlag = warp(command_args, errorString, starting_directory);
             }
             else 
             {
@@ -89,6 +114,7 @@ int main()
                 printf("\033[31mERROR: \033[0m%s\n", errorString);
             }
         }
+
         // End of loop, we clear the commands list
         memset(commands, 0, sizeof(commands));
         j = 0;
