@@ -1,10 +1,5 @@
 #include "headers.h"
 
-struct Command {
-    char * command_details;
-    int printProcId;
-} command;
-
 int main()
 {
     // Get the working directory of starting directory
@@ -56,6 +51,8 @@ int main()
 
             commands[numCommands - 1].printProcId = 0;
         }
+        // Print the list of commands
+
 
         // Execute the commands
         for (j = 0; j < numCommands; j++) {
@@ -105,6 +102,17 @@ int main()
                 }
                 erroneousFlag = warp(command_args, errorString, starting_directory);
             }
+
+            // Check if `peek` command was entered
+            else if (strncmp(command_args[0], "peek\0", 5) == 0) {
+                // Check if there were no more than 4 arguments
+                if (command_args[4] != NULL) {
+                    erroneousFlag = 1;
+                } else {
+                    erroneousFlag = peek(command_args, &errorString, starting_directory);
+                }
+            }
+
             else 
             {
                 printf("\033[31mERROR : '%s' is not a valid command\033[0m\n", command_args[0]);

@@ -6,9 +6,22 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#include <dirent.h>
+#include <sys/stat.h>
 #include <pwd.h>
+#include <grp.h>
+#include <time.h>
 #include <ctype.h>
 
 #include "prompt.h"
+
 #include "warpHandler/warp.h"
+
+#include "peekHandler/peek.h"
+
+#include "utils/pathHandler.h"
+#include "utils/flagHandler.h"
+#include "utils/errorHandler.h"
+
+
 #endif
