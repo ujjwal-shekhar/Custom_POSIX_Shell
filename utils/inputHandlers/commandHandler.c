@@ -1,6 +1,6 @@
 #include "../../headers.h"
 
-struct Command executeCommands(char *input, char *starting_directory) {
+struct CommandList executeCommands(char *input) {
     // Maintain a list of commands 
     struct Command commands[4096];
     int numCommands = 0;
@@ -36,4 +36,10 @@ struct Command executeCommands(char *input, char *starting_directory) {
 
         commands[numCommands - 1].printProcId = 0;
     }
+
+    struct CommandList cl;
+    cl.commands = commands;
+    cl.num_commands = numCommands;
+
+    return cl;
 }

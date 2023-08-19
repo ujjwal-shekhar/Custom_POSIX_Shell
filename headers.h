@@ -22,6 +22,7 @@
 #include "utils/pathHandler.h"
 #include "utils/flagHandler.h"
 #include "utils/errorHandler.h"
-
+#include "utils/inputHandlers/commandHandler.h"
+#include "utils/inputHandlers/commandArgsHandler.h"
 
 #endif

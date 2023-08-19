@@ -6,6 +6,11 @@ struct Command {
     int printProcId;
 } command;
 
-struct Command executeCommands(char *input, char *starting_directory);
+struct CommandList {
+    struct Command * commands;
+    int num_commands;
+} commandList;
+
+struct CommandList executeCommands(char *input);
 
 #endif
