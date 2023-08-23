@@ -8,7 +8,7 @@
 // around 40 : 60 (me : Copilot) 
 
 // Returns 0 : if successful, 1 : if failed
-int warp(char ** command_args, char * errorString, char starting_directory[]) {
+int warp(char ** command_args, char ** errorString, char starting_directory[]) {
     printf("Warping to %s\n", command_args[1]);
 
     // Iterate over all command_args
@@ -26,11 +26,11 @@ int warp(char ** command_args, char * errorString, char starting_directory[]) {
             if (access(new_directory, F_OK) == 0) {
                 // Change the directory
                 if (chdir(new_directory) != 0) {
-                    errorString = "\033[31mThere was some issue when using chdir\033[0m";
+                    errorHandler("\033[31mThere was some issue when using chdir\033[0m", errorString);
                     return 1;
                 }
             } else {
-                errorString = "\033[31mThe path is not valid\033[0m";
+                errorHandler("\033[31mThe path is not valid\033[0m", errorString);
                 return 1;
             }
 
@@ -43,13 +43,13 @@ int warp(char ** command_args, char * errorString, char starting_directory[]) {
         if (strcmp(command_args[i], "-") == 0) {
             // Check if the environment variable is set
             if (getenv("OLDPWD") == NULL) {
-                errorString = "\033[31mOLDPWD is not set\033[0m";
+                errorHandler("\033[31mOLDPWD is not set\033[0m", errorString);
                 return 1;
             }
 
             // Change the directory
             if (chdir(getenv("OLDPWD")) != 0) {
-                errorString = "\033[31mThere was some issue when using chdir\033[0m";
+                errorHandler("\033[31mThere was some issue when using chdir\033[0m", errorString);
                 return 1;
             }
 
@@ -62,11 +62,11 @@ int warp(char ** command_args, char * errorString, char starting_directory[]) {
             if (access(command_args[i], F_OK) == 0) {
                 // Change the directory
                 if (chdir(command_args[i]) != 0) {
-                    errorString = "\033[31mThere was some issue when using chdir\033[0m";
+                    errorHandler("\033[31mThere was some issue when using chdir\033[0m", errorString);
                     return 1;
                 }
             } else {
-                errorString = "\033[31mThe path is not valid\033[0m";
+                errorHandler("\033[31mThe path is not valid\033[0m", errorString);
                 return 1;
             }
         } else {
@@ -85,11 +85,11 @@ int warp(char ** command_args, char * errorString, char starting_directory[]) {
             if (access(new_directory, F_OK) == 0) {
                 // Change the directory
                 if (chdir(new_directory) != 0) {
-                    errorString = "\033[31mThere was some issue when using chdir\033[0m";
+                    errorHandler("\033[31mThere was some issue when using chdir\033[0m", errorString);
                     return 1;
                 }
             } else {
-                errorString = "\033[31mThe path is not valid\033[0m";
+                errorHandler("\033[31mThe path is not valid\033[0m", errorString);
                 return 1;
             }
         }        

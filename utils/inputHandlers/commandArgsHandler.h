@@ -1,5 +1,5 @@
-#ifndef COMMAND_ARGS_HANDLER_H
-#define COMMAND_ARGS_HANDLER_H
+#ifndef __COMMAND_ARGS_HANDLER_H
+#define __COMMAND_ARGS_HANDLER_H
 
 struct CommandArgs {
     char * command_details;

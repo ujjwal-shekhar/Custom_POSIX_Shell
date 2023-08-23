@@ -14,44 +14,6 @@ struct PathInfo pathHandler(char * command_arg, char ** errorString, char starti
         free(temp);
     }
 
-    // // Check if the command_arg is ".."
-    // // Replace ".." with parent directory
-    // // Auto completed by Github Copilot
-    // if (command_arg[0] == '.' && command_arg[1] == '.') {
-    //     char * temp = (char *) malloc(sizeof(char) * 4096);
-    //     if (temp == NULL) {
-    //         // Return with error
-    //         errorHandler("\033[31mMemory allocation failed\033[0m", errorString);
-    //         pi.isPath = 0;
-    //         return pi;
-    //     }
-
-    //     strcpy(temp, starting_directory);
-    //     int len = strlen(temp);
-    //     while (temp[len] != '/') len--;
-    //     temp[len] = '\0';
-    //     strcpy(command_arg, temp);
-    //     free(temp);
-    // } 
-
-    // // Check if the command_arg is "."
-    // Replace "." with current directory
-    // Auto completed by Github Copilot
-    // if (command_arg[0] == '.') {
-    //     char * temp = (char *) malloc(sizeof(char) * 4096);
-    //     if (temp == NULL) {
-    //         // Return with error
-    //         errorHandler("\033[31mMemory allocation failed\033[0m", errorString);
-    //         pi.isPath = 0;
-    //         return pi;
-    //     }
-
-    //     strcpy(temp, starting_directory);
-    //     strcat(temp, command_arg + 1);
-    //     strcpy(command_arg, temp);
-    //     free(temp);
-    // }
-
     // TODO : Add for OLD PWD/- // IMPPPPPPPPPPPPPPPPPPP
 
     // Check if the path is accessible

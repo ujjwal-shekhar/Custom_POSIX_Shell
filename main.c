@@ -14,7 +14,9 @@ int main()
         char input[4096];
         fgets(input, 4096, stdin);
 
-        // Continue if input is only whitespace characters
+        // Check if the word "pastevents" occurs in the input
+        int dontAddToHistory = (strstr(input, "pastevents") != NULL);
+        int errorOccured = 0;
 
         struct CommandList cl = executeCommands(input);
         int numCommands = cl.num_commands;
@@ -41,58 +43,17 @@ int main()
             int num_args = ca.num_args;
             char* commandName = ca.command_args[0];
 
-
-            // Check if exit command was entered
-            if (strcmp(commandName, "exit") == 0) {
-                if (num_args > 1) {
-                    erroneousFlag = 1;
-                } else {
-                    exit(EXIT_SUCCESS);
-                }
-            }
-
-
-            // Check if warp command was entered
-            else if (strncmp(commandName, "warp\0", 5) == 0) {
-                int notWhiteSpace = 0;
-                // Check if the entire command_arg[1] is a whitespace
-                for (int k = 0; k < strlen(command_args[1]); k++) {
-                    if (!isspace(command_args[1][k])) {
-                        notWhiteSpace = 1;
-                        break;
-                    }
-                }
-
-                if (command_args[1] == NULL) {
-                    command_args[1] = "~";
-                    command_args[2] = NULL;
-                } else if (notWhiteSpace == 0) {
-                    command_args[1] = "~";
-                    command_args[2] = NULL;
-                } else if (command_args[1] == "-") {
-                    // Add code for pwd later
-                }
-                erroneousFlag = warp(command_args, errorString, starting_directory);
-            }
-
-            // Check if `peek` command was entered
-            else if (strncmp(commandName, "peek\0", 5) == 0) {
-                // Check if there were no more than 4 arguments
-                if (num_args > 4) {
-                    erroneousFlag = 1;
-                } else {
-                    erroneousFlag = peek(command_args, &errorString, starting_directory);
-                }
-            }
-
-            else 
-            {
-                printf("\033[31mERROR : '%s' is not a valid command\033[0m\n", command_args[0]);
-            }
+            erroneousFlag = executeCommand(commandName, num_args, command_args, &errorString, starting_directory, dontAddToHistory);
 
             if (erroneousFlag) {
                 printf("\033[31mERROR: \033[0m%s\n", errorString);
+                free(errorString);
+                errorOccured = 1;
             }
         }
+
+        // if ((!dontAddToHistory) && (!errorOccured)) {
+        //     addEventToHistory()
+        // }
     }
 }
