@@ -1,6 +1,6 @@
 #include "../../headers.h"
 
-int executeCommand(char* commandName, int num_args, char *command_args[], char ** errorString, char starting_directory[], int dontAddToHistory) {
+int executeCommand(char* commandName, int num_args, char *command_args[], char ** errorString, char starting_directory[]) {
     // Check if exit command was entered
     if (strcmp(commandName, "exit") == 0) {
         if (num_args > 1) {

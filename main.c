@@ -9,6 +9,8 @@ int main()
     // Keep accepting commands
     while (1)
     {
+        check_background_processes();
+
         // Print appropriate prompt with username, systemname and directory before accepting input
         prompt(starting_directory);
         char input[4096];
@@ -42,13 +44,59 @@ int main()
 
             int num_args = ca.num_args;
             char* commandName = ca.command_args[0];
+            int isBackground = commands[j].printProcId;
 
-            erroneousFlag = executeCommand(commandName, num_args, command_args, &errorString, starting_directory, dontAddToHistory);
+            if (isBackground) {
+                pid_t pid = fork();
+                if (pid < 0) { // Failed fork
+                    perror("Fork failed");
+                    errorHandler("Fork failed", &errorString);
+                } else if (pid == 0) { // Child process block
+                    // Make the last entry of command_args as NULL
+                    command_args[num_args] = NULL;
 
-            if (erroneousFlag) {
-                printf("\033[31mERROR: \033[0m%s\n", errorString);
-                free(errorString);
-                errorOccured = 1;
+                    // Call execvp
+                    erroneousFlag = execvp(commandName, command_args);
+
+                    if (erroneousFlag == -1) {
+                        printf("\033[31mERROR: \033[0m%s\n", errorString);
+                        free(errorString);
+                        errorOccured = 1;
+                    }
+                } else { // Parent process block
+                    add_background_process(pid, command_details);
+                    printf("[%d]\n", pid); // Print the PID of the background process
+                }
+            } else {
+                // printf("Not BG SOMEHOW WHAT");
+                char * userCommandsList[] = {"warp\0", "peek\0", "pastevents\0", "proclore\0", NULL};
+                
+                // Check if the commandName is one of the the userCommandsList
+                int isUserCommand = 0;
+                for (int i = 0; userCommandsList[i] != NULL; i++) {
+                    if (strcmp(commandName, userCommandsList[i]) == 0) {
+                        isUserCommand = 1;
+                        break;
+                    }
+                }
+
+                if (isUserCommand)
+                    erroneousFlag = executeCommand(commandName, num_args, command_args, &errorString, starting_directory);
+                else {
+                    // Make the last entry of command_args as NULL
+                    command_args[num_args] = NULL;
+
+                    // Call execvp
+                    erroneousFlag = execvp(commandName, command_args);
+                    printf("execvp returned %d\n", erroneousFlag);
+                    erroneousFlag = (erroneousFlag == -1);
+                }
+
+                if (erroneousFlag) {
+                    printf("\033[31mERROR: \033[0m%s\n", errorString);
+                    free(errorString);
+                    errorOccured = 1;
+                }
             }
         }
 

@@ -8,6 +8,7 @@
 #include <sys/types.h> //
 #include <dirent.h>   //
 #include <sys/stat.h> //
+#include <sys/wait.h> //
 #include <pwd.h> //
 #include <grp.h> //
 #include <time.h>
@@ -20,6 +21,8 @@
 #include "peekHandler/peek.h"
 
 #include "pasteventsHandler/pastevents.h"
+
+#include "systemCommands/backgroundManager/backgroundProcHandler.h"
 
 #include "utils/pathHandler.h"
 #include "utils/flagHandler.h"

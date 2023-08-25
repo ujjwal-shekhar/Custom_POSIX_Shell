@@ -20,6 +20,8 @@ struct CommandList executeCommands(char *input) {
             if (subtoken == NULL)
                 break;
 
+            // printf("Inside subtoken : %s", str2);
+
             // Check if the subtoken is just whitespace
             for (int k = 0; k < strlen(subtoken); k++) {
                 if (!isspace(subtoken[k])) {
@@ -36,6 +38,11 @@ struct CommandList executeCommands(char *input) {
 
         commands[numCommands - 1].printProcId = 0;
     }
+
+    // Print the list of commands
+    // for (int i = 0; i < numCommands; i++) {
+    //     printf("Command %d : %s\n", i, commands[i].command_details);
+    // }
 
     struct CommandList cl;
     cl.commands = commands;
