@@ -62,7 +62,6 @@ int peek(char ** command_args, char ** errorString, char starting_directory[]) {
         // Autocompleted by ChatGPT-3.5-Turbo
         // Prompt used : `how to implement ls in C`
         // Prompt2 : `How can I display these in lexicographical order ?`
-        // printf("pathpathp : %s\n", pi.path);
         struct dirent **entry;
         int n = scandir(path, &entry, NULL, alphasort);
 
@@ -152,49 +151,5 @@ int peek(char ** command_args, char ** errorString, char starting_directory[]) {
         printf("That is not possible\n");
     }
 
-
     return 0;
 }
-
-/*
-
-    // Let's go over every arg, and check if it's a flag
-    for (int i=1; i<4; i++) if (command_args[i] != NULL) {
-        printf("Arg : %s\n", command_args[i]);
-
-        flagHandler()
-
-        // if (command_args[i][0] == '-') { // Must be a flag
-        //     // If the path was already found, then this is an error
-        //     if (pathFound) {
-        //         errorHandler("\033[31mSyntax Error\nCorrect Usage : peek <flags> <path/name>\033[0m", errorString);
-        //         return 1;
-        //     }
-
-        //     if (strlen(command_args[i]) == 1) {
-        //         // Code for PWD
-        //     }
-            
-        //     // Iterate over every character after '-'
-        //     // And set the flags accordingly.
-        //     for (int j=1; j<strlen(command_args[i]); j++) {
-        //         if (command_args[i][j] != 'l' && command_args[i][j] != 'a') {
-        //             errorHandler("\033[31mInvalid flag\033[0m", errorString);
-        //             return 1;
-        //         }
-
-        //         listFlag |= (command_args[i][j] == 'l');
-        //         allFlag |= (command_args[i][j] == 'a');
-        //     }
-
-        } else { // Must be a path
-            struct PathInfo pi = pathHandler(command_args[i], errorString, starting_directory);
-
-            if (!pi.isPath) {
-                return 1;
-            }
-
-            pathFound = 1;
-        }
-    }
-*/
