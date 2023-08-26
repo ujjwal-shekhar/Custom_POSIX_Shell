@@ -55,11 +55,6 @@ struct CommandList executeCommands(char *input) {
         commands[i].command_details = command_details;
     }
 
-    // // Print the list of commands
-    // for (int i = 0; i < numCommands; i++) {
-    //     printf("\nCommand %d : %s | procID : %d\n", i, commands[i].command_details, commands[i].printProcId);
-    // }
-
     // Check using the original input string for
     // commands that dont "&" follwing them
     for (int i = 0; i < numCommands; i++) {
@@ -122,6 +117,11 @@ struct CommandList executeCommands(char *input) {
 
     // // numCommands++;
     // numCommands = j;
+
+    // // Print the list of commands
+    for (int i = 0; i < numCommands; i++) {
+        printf("\nCommand %d : %s | procID : %d\n", i, commands[i].command_details, commands[i].printProcId);
+    }
 
     struct CommandList cl;
     commands[numCommands].command_details = NULL; // To avoid segfaults

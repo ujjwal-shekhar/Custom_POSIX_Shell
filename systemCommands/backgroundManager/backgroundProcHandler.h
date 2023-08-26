@@ -19,9 +19,11 @@ I was thinking of maintaining a list of structs for this, where each element wou
 struct ProcessDetails {
     pid_t pid;
     int completed; // bool
+    int normallyExited ; // -1 : not exited, 0 : abnormally, 1 : normally
     char *commandName;
 };
 
+void update_background_status();
 void add_background_process(pid_t pid, const char *command);
 void check_background_processes();
 

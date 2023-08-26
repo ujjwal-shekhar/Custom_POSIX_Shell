@@ -1,5 +1,14 @@
 #include "headers.h"
 
+// int sigchldReceived = 0;
+void sigchld_handler(int signo) {
+    if(signo==SIGCHLD){
+        update_background_status();
+        // sigchldReceived = 1;
+
+    }
+}
+
 int main()
 {
     // Get the working directory of starting directory
@@ -16,10 +25,34 @@ int main()
     double time_taken = 0.0;
     int resetTimeTaken = 0;
 
+    // Rerun pastevent
+    int rerunPastEvent = 0;
+
+    // Store the past command details
+    char * prevCommDetails = (char *) malloc(4096 * sizeof(char));
+    if (prevCommDetails == NULL) {
+        printf("\033[31mFailed to allocate memory\033[0m\n");
+        exit(EXIT_FAILURE);
+    }
+    prevCommDetails[0] = '\0';
+    struct sigaction sa;
+    sa.sa_handler = sigchld_handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESTART | SA_NOCLDSTOP;
+    sigaction(SIGCHLD, &sa, NULL);
     // Keep accepting commands
     while (1)
     {
-        check_background_processes();
+
+        // Call the signal handler
+        // signal(SIGCHLD, sigchld_handler);
+        
+        
+        // Check for background processes
+        // if (sigchldReceived) {
+       
+            // sigchldReceived = 0;
+        // }
 
         if (resetTimeTaken) {
             time_taken = 0.0;
@@ -27,9 +60,17 @@ int main()
         }
 
         // Print appropriate prompt with username, systemname and directory before accepting input
-        prompt(starting_directory, prevCommandName, time_taken);
         char input[4096];
-        fgets(input, 4096, stdin);
+        if (!rerunPastEvent) {
+            prompt(starting_directory, prevCommandName, time_taken);
+            fgets(input, 4096, stdin);
+        }
+        else {
+            // printf("Rerunning past event\n");
+            strcpy(input, prevCommDetails);
+            rerunPastEvent = 0;
+            prevCommDetails[0] = '\0';
+        }
         resetTimeTaken = 1;
 
         // Check if the word "pastevents" occurs in the input
@@ -93,6 +134,7 @@ int main()
                         // free(errorString);
                         // errorOccured = 1;
                         printf("\033[31mERROR: '%s' is not a valid command\033[0m\n", commandName);
+                        exit(EXIT_FAILURE);
                     }
                 } else { // Parent process block
                     add_background_process(pid, command_details);
@@ -114,8 +156,20 @@ int main()
                 }
 
                 if (pid == 0) { // Child process block
-                    if (isUserCommand)
-                        erroneousFlag = executeCommand(commandName, num_args, command_args, &errorString, starting_directory, &previous_directory);
+                    if (isUserCommand) {
+                        erroneousFlag = executeCommand(commandName, num_args, command_args, &errorString, starting_directory, &previous_directory, &prevCommDetails);
+                    
+                        if (erroneousFlag == 2) {
+                            // A past events execute successfully completed 
+                            // and the command details are stored in prevCommDetails
+                            printf("The command details are : %s\n", prevCommDetails);
+                            rerunPastEvent = 1;
+                            erroneousFlag = 0;
+
+                            // continue;
+                            // Store the command_details in another temp array
+                        }
+                    }
                     else {
                         // Make the last entry of command_args as NULL
                         command_args[num_args] = NULL;
@@ -123,9 +177,8 @@ int main()
                         // Call execvp
                         erroneousFlag = execvp(commandName, command_args);
                         printf("\033[31mERROR : %s is not a valid command\033[0m\n", commandName);
+                        exit(EXIT_FAILURE);
                         erroneousFlag = 0;
-                        // if (erroneousFlag == -1)
-                            // errorHandler("\033[31m[ERROR] : This is an invalid command\033[0m", &errorString);
                     }
                 } else if (pid < 0) { // Error in forking block
                     perror("fork");
@@ -166,8 +219,11 @@ int main()
             }
         }
 
+        // addEventToHistory(cl, dontAddToHistory);
+
         // if ((!dontAddToHistory) && (!errorOccured)) {
         //     addEventToHistory()
         // }
+         check_background_processes();
     }
 }

@@ -1,6 +1,11 @@
 #ifndef HEADERS_H_
 #define HEADERS_H_
 
+struct CommandList {
+    struct Command * commands;
+    int num_commands;
+} commandList;
+
 #include <stdio.h>
 #include <unistd.h> //
 #include <stdlib.h>
@@ -21,6 +26,8 @@
 
 #include "peekHandler/peek.h"
 #include "seekHandler/seek.h"
+
+#include "procloreHandler/proclore.h"
 
 #include "pasteventsHandler/pastevents.h"
 
