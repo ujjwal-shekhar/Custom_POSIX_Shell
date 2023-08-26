@@ -1,6 +1,6 @@
 #include "../../headers.h"
 
-int executeCommand(char* commandName, int num_args, char *command_args[], char ** errorString, char starting_directory[]) {
+int executeCommand(char* commandName, int num_args, char *command_args[], char ** errorString, char starting_directory[], char ** previous_directory) {
     // Check if exit command was entered
     if (strcmp(commandName, "exit") == 0) {
         if (num_args > 1) {
@@ -31,7 +31,7 @@ int executeCommand(char* commandName, int num_args, char *command_args[], char *
         } else if (command_args[1] == "-") {
             // Add code for pwd later
         }
-        return warp(command_args, errorString, starting_directory);
+        return warp(command_args, errorString, starting_directory, previous_directory);
     }
 
     // Check if `peek` command was entered
@@ -40,9 +40,20 @@ int executeCommand(char* commandName, int num_args, char *command_args[], char *
         if (num_args > 4) {
             return 1;
         } else {
-            return peek(command_args, errorString, starting_directory);
+            return peek(command_args, errorString, starting_directory, previous_directory);
         }
     }
+
+    // Check if `seek` command was entered
+    else if (strncmp(commandName, "seek\0", 5) == 0) {
+        // Check if there were no more than 4 arguments
+        if (num_args > 6) {
+            return 1;
+        } else {
+            return seek(command_args, errorString, starting_directory, previous_directory);
+        }
+    }
+
 
     // Check if `pastevents` command was entered
     else if (strncmp(commandName, "pastevents\0", 11) == 0) {

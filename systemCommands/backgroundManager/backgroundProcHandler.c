@@ -20,8 +20,9 @@ void check_background_processes() {
                 if (WIFEXITED(status) && !WEXITSTATUS(status)) {
                     printf("%s exited normally (%d)\n", backgroundProcesses[i].commandName, backgroundProcesses[i].pid);
                 } else if (WIFEXITED(status) && WEXITSTATUS(status)) {
-                    if (WEXITSTATUS(status) == ((1 << 7) - 1)) {
+                    if (WEXITSTATUS(status) == (127)) {
                         printf("execv failed\n");
+                        // errorHandler("execv failed", &errorHandler);
                     } else {
                         printf("%s exited normally (%d)\n", backgroundProcesses[i].commandName, backgroundProcesses[i].pid);
                     }

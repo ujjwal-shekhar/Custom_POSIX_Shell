@@ -8,8 +8,20 @@
 // around 40 : 60 (me : Copilot) 
 
 // Returns 0 : if successful, 1 : if failed
-int warp(char ** command_args, char ** errorString, char starting_directory[]) {
-    printf("Warping to %s\n", command_args[1]);
+int warp(char ** command_args, char ** errorString, char starting_directory[], char ** previous_directory) {
+
+    if (command_args[1] == NULL) {
+        command_args[1] = "~";
+        command_args[2] = NULL;
+    } else if (strcmp(command_args[1], "-")) {
+        // get cwd
+        char cwd[4096];
+        getcwd(cwd, 4096);
+        
+        // Make the cwd as previous_directory
+        strcpy(*previous_directory, cwd);
+
+    }
 
     // Iterate over all command_args
     int i = 1;
@@ -42,13 +54,13 @@ int warp(char ** command_args, char ** errorString, char starting_directory[]) {
         // If the argument is "-" then we got the OLD_PWD
         if (strcmp(command_args[i], "-") == 0) {
             // Check if the environment variable is set
-            if (getenv("OLDPWD") == NULL) {
+            if (strlen(*previous_directory) == 0) {
                 errorHandler("\033[31mOLDPWD is not set\033[0m", errorString);
                 return 1;
             }
 
             // Change the directory
-            if (chdir(getenv("OLDPWD")) != 0) {
+            if (chdir(*previous_directory) != 0) {
                 errorHandler("\033[31mThere was some issue when using chdir\033[0m", errorString);
                 return 1;
             }

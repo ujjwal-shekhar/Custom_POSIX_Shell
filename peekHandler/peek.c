@@ -4,7 +4,7 @@ int compare(const void *a, const void *b) {
     return strcmp(*(const char **)a, *(const char **)b);
 }
 
-int peek(char ** command_args, char ** errorString, char starting_directory[]) {
+int peek(char ** command_args, char ** errorString, char starting_directory[], char ** previous_directory) {
     int listFlag = 0, allFlag = 0, pathFound = 0;
     char * path = NULL;
     // printf("Flags : %d %d, Pathfound : %d\n", listFlag, allFlag, pathFound);
@@ -12,8 +12,8 @@ int peek(char ** command_args, char ** errorString, char starting_directory[]) {
 
     for (int i=1; i<4; i++) {
         if (command_args[i] == NULL) break;
-        // Check if argument is only white space
 
+        // Check if argument is only white space
         int isWhitepace = 1;
         for (int j=0; j<strlen(command_args[i]); j++) {
             if (!isspace(command_args[i][j])) {
@@ -25,7 +25,7 @@ int peek(char ** command_args, char ** errorString, char starting_directory[]) {
         if (isWhitepace) break;
 
         struct FlagInfo fi = flagHandler(command_args[i], errorString, starting_directory, "-");
-        struct PathInfo pi = pathHandler(command_args[i], errorString, starting_directory);
+        struct PathInfo pi = pathHandler(command_args[i], errorString, starting_directory, previous_directory);
 
         // Check if this is a flag
         if (fi.isFlag) {
@@ -57,6 +57,12 @@ int peek(char ** command_args, char ** errorString, char starting_directory[]) {
         }
     }
 
+    if (!pathFound) {
+        path = (char *) malloc(sizeof(char) * 4096);
+        strcpy(path, starting_directory);
+        pathFound = 1;
+    }
+
     if (pathFound) {
         // Go over all the files in pi.path
         // Autocompleted by ChatGPT-3.5-Turbo
@@ -69,12 +75,18 @@ int peek(char ** command_args, char ** errorString, char starting_directory[]) {
             errorHandler("\033[31mDirectory not found\033[0m", errorString);
             return 1;
         }
-        if (listFlag) printf("total %d\n", n);
+        if (listFlag) printf("total %d\n", n); // TODO : Fix this number
+        
         for (int k = 0; k < n; k++) {
             if ((!allFlag) && (entry[k]->d_name[0] == '.')) continue;
 
             struct stat fileStat;
-            stat(entry[k]->d_name, &fileStat);
+            // Concatenate the calling directory and the filename
+            char * temp = (char *) malloc(sizeof(char) * (strlen(path) + strlen(entry[k]->d_name) + 2));
+            strcpy(temp, path);
+            strcat(temp, "/");
+            strcat(temp, entry[k]->d_name);
+            stat(temp, &fileStat);
             if (listFlag) {
                 // Bibliography : https://stackoverflow.com/questions/17578647/what-does-terminal-command-ls-l-show
 
@@ -144,11 +156,13 @@ int peek(char ** command_args, char ** errorString, char starting_directory[]) {
                 } else {
                     printf("%s ", entry[k]->d_name);
                 }
-            }     
+            }    
+
+            free(temp); 
         }
         printf("\n");
     } else {
-        printf("That is not possible\n");
+
     }
 
     return 0;

@@ -1,7 +1,7 @@
 // #define _POSIX_SOURCE
 #include "headers.h"
 
-void prompt(char starting_directory[]) {
+void prompt(char starting_directory[], char prevCommandName[], double timeTaken) {
     // Retrieve the host name
     char hostname[256];
 
@@ -35,10 +35,18 @@ void prompt(char starting_directory[]) {
     // else use the absolute path
     if (strstr(current_directory, starting_directory) != NULL) {
         char *relative_path = strstr(current_directory, starting_directory);
-        printf("<\033[96m%s\033[0m@%s:~%s>", username, hostname, relative_path + strlen(starting_directory));
+        printf("<\033[96m%s\033[0m@%s:~%s", username, hostname, relative_path + strlen(starting_directory));
     } else {
-        printf("<\033[96m%s\033[0m@%s:%s>", username, hostname, current_directory);
+        printf("<\033[96m%s\033[0m@%s:%s", username, hostname, current_directory);
     }
+
+    // If the time taken is greater than 2 (rounded down to integer)
+    // then print the prevCommandName : time taken
+    if (timeTaken > 2) {
+        printf(" \033[92m%s : %.0lfs\033[0m", prevCommandName, timeTaken);
+    }
+
+    printf("> ");
 
     // Bibliography
     // https://www.bing.com/search?q=get+username+c&cvid=9705e13fb2614d8db0993f94136f9089&aqs=edge.0.69i59l3j69i57j0l5j69i11004.1604j0j9&FORM=ANAB01&PC=HCTS

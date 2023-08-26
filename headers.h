@@ -19,6 +19,7 @@
 #include "warpHandler/warp.h"
 
 #include "peekHandler/peek.h"
+#include "seekHandler/seek.h"
 
 #include "pasteventsHandler/pastevents.h"
 
