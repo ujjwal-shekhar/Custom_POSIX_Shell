@@ -19,7 +19,7 @@ void update_background_status() {
         
         pid_t pid = waitpid(backgroundProcesses[i].pid, &status, WNOHANG);
         if (pid == -1) {
-            printf("Error in waitpid\n");
+            // printf("Error in waitpid\n");
         } else if(pid ==0){
             continue;
         } 
@@ -28,7 +28,7 @@ void update_background_status() {
             backgroundProcesses[i].normallyExited = (
                 WIFEXITED(status) && !WEXITSTATUS(status)
             );
-            printf("backgroundProcesses[i].normallyExited: %d\n",backgroundProcesses[i].normallyExited);
+            // printf("backgroundProcesses[i].normallyExited: %d\n",backgroundProcesses[i].normallyExited);
         }
     }
 }

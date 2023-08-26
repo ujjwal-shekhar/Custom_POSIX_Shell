@@ -180,6 +180,5 @@ int getIndexInHistory(char **errorString, int fetchIndex, char ** command_detail
     // Copy the command_details to the command_details pointer
     strcpy(*command_details, history[fetchIndex]);
 
-    
     return 0;
 }
