@@ -13,6 +13,7 @@
 #include <grp.h> //
 #include <time.h>
 #include <ctype.h>
+#include <fcntl.h>
 
 #include "prompt.h"
 

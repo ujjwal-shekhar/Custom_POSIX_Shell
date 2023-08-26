@@ -60,22 +60,39 @@ int main()
             int isBackground = commands[j].printProcId;
 
             if (isBackground) {
-            // if (1 == 1) {
+                // Check if command is a valid system command
                 pid_t pid = fork();
                 if (pid < 0) { // Failed fork
-                    perror("Fork failed");
+                    // perror("Fork failed");
                     errorHandler("Fork failed", &errorString);
                 } else if (pid == 0) { // Child process block
                     // Make the last entry of command_args as NULL
                     command_args[num_args] = NULL;
 
+                    // Open /dev/null for reading and writing
+                    int null_fd = open("/dev/null", O_RDWR);
+
+                    // Check if the file descriptor is valid
+                    if (null_fd == -1) {
+                        errorHandler("\033[31mFailed to open /dev/null\033[0m", &errorString);
+                    }
+
+                    // Redirect standard input, output, and error to /dev/null
+                    dup2(null_fd, STDIN_FILENO);
+                    dup2(null_fd, STDOUT_FILENO);
+                    dup2(null_fd, STDERR_FILENO);
+
+                    // Close the /dev/null file descriptor
+                    close(null_fd);
+
                     // Call execvp
                     erroneousFlag = execvp(commandName, command_args);
 
                     if (erroneousFlag == -1) {
-                        printf("\033[31mERROR: \033[0m%s\n", errorString);
-                        free(errorString);
-                        errorOccured = 1;
+                        // printf("\033[31mERROR: ''\033[0m%s\n", errorString);
+                        // free(errorString);
+                        // errorOccured = 1;
+                        printf("\033[31mERROR: '%s' is not a valid command\033[0m\n", commandName);
                     }
                 } else { // Parent process block
                     add_background_process(pid, command_details);
@@ -105,10 +122,10 @@ int main()
 
                         // Call execvp
                         erroneousFlag = execvp(commandName, command_args);
-                        printf("execvp returned %d\n", erroneousFlag);
-                        // erroneousFlag = (erroneousFlag == -1);
-                        if (erroneousFlag == -1)
-                            errorHandler("\033[31m[ERROR] : This is an invalid command\033[0m", &errorString);
+                        printf("\033[31mERROR : %s is not a valid command\033[0m\n", commandName);
+                        erroneousFlag = 0;
+                        // if (erroneousFlag == -1)
+                            // errorHandler("\033[31m[ERROR] : This is an invalid command\033[0m", &errorString);
                     }
                 } else if (pid < 0) { // Error in forking block
                     perror("fork");
