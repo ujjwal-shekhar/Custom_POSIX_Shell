@@ -1,5 +1,10 @@
 #include "headers.h"
 
+// USAGE OF CHATGPT
+// A lot of the signal handling came
+// from chatgpt
+// and this https://www.gnu.org/software/libc/manual/html_node/Process-Completion.html
+
 // int sigchldReceived = 0;
 void sigchld_handler(int signo) {
     if(signo==SIGCHLD){

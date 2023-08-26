@@ -5,7 +5,7 @@ struct PathInfo pathHandler(char * command_arg, char ** errorString, char starti
     pi.isPath = 1;
 
     // Print the command_arg
-    printf("Command arg : %s\n", command_arg);
+    // printf("Command arg : %s\n", command_arg);
 
     // Check if the command_arg has "~"
     // Replace "~" with starting directory

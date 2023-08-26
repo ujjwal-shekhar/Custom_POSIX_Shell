@@ -18,7 +18,7 @@ the code is 40% copilot and 60% me
 
 int numMatchingFiles = 0, numMatchingDirs = 0;
 
-int traverseDirectry(char * searchTerm, char ** errorString, char * path, int dFlag, int fFlag) {
+int traverseDirectry(char * searchTerm, char ** errorString, char * path, int dFlag, int fFlag, char ** directoryPath, char ** filePath) {
     // Open the directory
     DIR *dir = opendir(path);
     if (!dir) {
@@ -36,20 +36,23 @@ int traverseDirectry(char * searchTerm, char ** errorString, char * path, int dF
                     // Construct the relative path to the file or directory
                     // with respect to the starting directory
                     char relative_path[4096];
-                    snprintf(relative_path, sizeof(relative_path), "./%s/%s", path, entry->d_name);
-                    
+                    snprintf(relative_path, sizeof(relative_path), "%s/%s", path, entry->d_name);
+                    printf("\033[34;1m%s\033[0m\n", relative_path + strlen(path) + 1);
 
-                    // TODO : Finish this
-                    // Replace path+"/" using strchr with ""
-                    // char * temp = strchr(relative_path, '/');
-                    // while (temp != NULL) {
-                    //     strcpy(temp, temp + 1);
-                    //     temp = strchr(relative_path, '/');
-                    // }
+                    // Save this relative path to directoryPath
+                    // printf("The path is %s\n", *directoryPath);  
 
-                    // printf("relative_path : %s\n", relative_path);
+                    char * tempPath = (char *) malloc(sizeof(char) * 4096);
+                    if (tempPath == NULL) {
+                        errorHandler("\033[31mMemory allocation failed\033[0m", errorString);
+                        return 1;
+                    }
 
-                    printf("\033[34;1m%s\033[0m\n", relative_path);
+                    strcpy(tempPath, path);
+                    strcat(tempPath, relative_path + strlen(path) + 1);
+                    strcpy(*directoryPath, tempPath);                  
+
+                    // printf("The path is %s\n", *directoryPath);  
                 }
             }
 
@@ -63,7 +66,7 @@ int traverseDirectry(char * searchTerm, char ** errorString, char * path, int dF
                 strcpy(childPath, path);
                 strcat(childPath, "/");
                 strcat(childPath, entry->d_name);
-                traverseDirectry(searchTerm, errorString, childPath, dFlag, fFlag);
+                traverseDirectry(searchTerm, errorString, childPath, dFlag, fFlag, directoryPath, filePath);
             }
         } else if (entry->d_type == DT_REG) {
             // printf("%s\n", entry->d_name);
@@ -78,8 +81,12 @@ int traverseDirectry(char * searchTerm, char ** errorString, char * path, int dF
 
                     // Construct the relative path to the file or directory
                     char relative_path[4096];
-                    snprintf(relative_path, sizeof(relative_path), "./%s/%s", path, entry->d_name);
-                    printf("\033[32;1m%s\033[0m\n", relative_path);
+                    snprintf(relative_path, sizeof(relative_path), "%s/%s", path, entry->d_name);
+                    printf("\033[32;1m%s\033[0m\n", relative_path + strlen(path) + 1);
+
+                    // Save this relative path to filePath
+                    strcat(path, relative_path + strlen(path));
+                    strcpy(*filePath, path);
                 }
             } 
         }
@@ -165,28 +172,40 @@ int seek(char ** command_args, char ** errorString, char starting_directory[], c
         fFlag = 1;
     }
 
+    char * directoryPath = (char *) malloc(sizeof(char) * 4096);
+    char * filePath = (char *) malloc(sizeof(char) * 4096);
+
+    if (directoryPath == NULL || filePath == NULL) {
+        errorHandler("\033[31mMemory allocation failed\033[0m", errorString);
+        return 1;
+    }
 
     // Call traverseDirectory
-    traverseDirectry(searchTerm, errorString, path, dFlag, fFlag);
-
-    printf(
-        "\033[34;1m%d\033[0m directories and \033[32;1m%d\033[0m files found\n",
-        numMatchingDirs,
-        numMatchingFiles
-    );
+    traverseDirectry(searchTerm, errorString, path, dFlag, fFlag, &directoryPath, &filePath);
 
     // Handling the "-e" flag
     if (numMatchingFiles + numMatchingDirs == 1) {
-        printf("hi1");
         if (dFlag && numMatchingDirs) {
-            printf("hi2");
 
             if (chdir(searchTerm) != 0) {
                 errorHandler("\033[31mMissing permissions for task!\033[0m", errorString);
                 return 1;
             }
         } if (fFlag && numMatchingFiles) {
-            printf("\033[32;1m%s\033[0m\n", searchTerm);
+            // printf("\033[32;1m%s\033[0m\n", searchTerm);
+            // Print the contents of the file
+            FILE * file = fopen(filePath, "r");
+            if (file == NULL) {
+                errorHandler("\033[31mUnable to open file\033[0m", errorString);
+                return 1;
+            }
+
+            char buffer[4096];
+            while (fgets(buffer, sizeof(buffer), file) != NULL) {
+                printf("%s", buffer);
+            }
+
+            fclose(file);
         }
     } 
 
