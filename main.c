@@ -24,6 +24,12 @@ int main()
         int numCommands = cl.num_commands;
         struct Command *commands = cl.commands;
 
+        // Print the commandList
+        for (int i = 0; i < numCommands; i++) {
+            printf("Command in main %d : %s\n", i, commands[i].command_details);
+        }
+
+
         int j;
 
         // Execute the commands

@@ -8,41 +8,41 @@ struct CommandList executeCommands(char *input) {
     // Taken from `man strtok`
     char *str1, *str2, *token, *subtoken;
     char *saveptr1, *saveptr2;
-    int j;
+    int i, j;
 
     for (j = 1, str1 = input; ; j++, str1 = NULL) {
         token = strtok_r(str1, ";", &saveptr1);
         if (token == NULL)
             break;
+
         
-        for (str2 = token; ; str2 = NULL) {
+        for (i = 1, str2 = token; ; i++, str2 = NULL) {
             subtoken = strtok_r(str2, "&", &saveptr2);
-            if (subtoken == NULL)
+            // printf("%dth subtoken : %s\n", i, subtoken);
+            if (subtoken == NULL) {
+                commands[numCommands - 1].printProcId = 0;
                 break;
+            }
 
-            // printf("Inside subtoken : %s", str2);
+            commands[numCommands].printProcId = 1;
+            commands[numCommands].command_details = subtoken;
 
-            // Check if the subtoken is just whitespace
-            for (int k = 0; k < strlen(subtoken); k++) {
-                if (!isspace(subtoken[k])) {
-                    commands[numCommands].command_details = subtoken;
-                    commands[numCommands].printProcId = 1;
-                    numCommands++;
-                    break;
-                }
-                if (k == strlen(subtoken) - 1) {
-                    continue;
-                }
-            }                
+            numCommands++;
         }
 
+    }
+
+    if (isspace(commands[numCommands - 1].command_details[0])) {
         commands[numCommands - 1].printProcId = 0;
+        numCommands--;
     }
 
     // Print the list of commands
-    // for (int i = 0; i < numCommands; i++) {
-    //     printf("Command %d : %s\n", i, commands[i].command_details);
+    // for (int i = 0; i <= numCommands; i++) {
+    //     printf("\nCommand %d : %s | procID : %d\n", i, commands[i].command_details, commands[i].printProcId);
     // }
+
+    numCommands++;
 
     struct CommandList cl;
     cl.commands = commands;
