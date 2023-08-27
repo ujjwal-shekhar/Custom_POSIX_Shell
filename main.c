@@ -50,14 +50,6 @@ int main()
     {
 
         // Call the signal handler
-        // signal(SIGCHLD, sigchld_handler);
-        
-        
-        // Check for background processes
-        // if (sigchldReceived) {
-       
-            // sigchldReceived = 0;
-        // }
 
         if (resetTimeTaken) {
             time_taken = 0.0;
