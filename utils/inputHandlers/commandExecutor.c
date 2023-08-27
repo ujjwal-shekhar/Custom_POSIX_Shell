@@ -72,37 +72,40 @@ int executeCommand(char* commandName, int num_args, char *command_args[], char *
         } else {
             // If only one arg : display the whole history
             if (num_args == 1) {
-                return showHistory(errorString);
+                showHistory(errorString);
+                return 2;
             }
 
             // If two args, then purge the file
             else if ((num_args == 2) && (strncmp(command_args[1], "purge\0", 6) == 0)) {
-                return clearHistory(errorString);
+                clearHistory(errorString);
+                return 2;
             }
 
             // If three args, then execute at index
             else if ((num_args == 3) && (strncmp(command_args[1], "execute\0", 8) == 0)) {
-                 // Check if the input string contains only digits
-                int isOnlyDigits = 1;
-                for (int i = 0; command_args[2][i] != '\0'; i++) {
-                    if (!isdigit(command_args[2][i]) && command_args[2][i] != '\n') {
-                        isOnlyDigits = 0;
-                        break;
-                    }
-                }
-                if (!isOnlyDigits) {
-                    errorHandler("\033[31mWrong Syntax used\nCorrect Usage : pastevents <purge / execute index>\033[0m\n", errorString);
-                    return 1;
-                }
+                // Check if the input string contains only digits
+                // int isOnlyDigits = 1;
+                // for (int i = 0; command_args[2][i] != '\0'; i++) {
+                //     if (!isdigit(command_args[2][i]) && command_args[2][i] != '\n') {
+                //         isOnlyDigits = 0;
+                //         break;
+                //     }
+                // }
+                // if (!isOnlyDigits) {
+                //     errorHandler("\033[31mWrong Syntax used\nCorrect Usage : pastevents <purge / execute index>\033[0m\n", errorString);
+                //     return 1;
+                // }
 
-                int errorFlag = getIndexInHistory(errorString, atoi(command_args[2]) - 1, prevCommDetails);
+                // int errorFlag = getIndexInHistory(errorString, atoi(command_args[2]) - 1, prevCommDetails);
             
-                // printf("The command details are : %s\n", *prevCommDetails);
-                if (errorFlag != 1) {
-                    return 2;
-                } else {
-                    return 1;
-                }
+                // // printf("The command details are : %s\n", *prevCommDetails);
+                // if (errorFlag != 1) {
+                //     return 2;
+                // } else {
+                //     return 1;
+                // }
+                return 2; // All the pastevents execute that are valid must have already been handled
             }
 
             else {

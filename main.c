@@ -10,7 +10,6 @@ void sigchld_handler(int signo) {
     if(signo==SIGCHLD){
         update_background_status();
         // sigchldReceived = 1;
-
     }
 }
 
@@ -29,9 +28,6 @@ int main()
     char prevCommandName[128]; prevCommandName[0] = '\0';
     double time_taken = 0.0;
     int resetTimeTaken = 0;
-
-    // Rerun pastevent
-    int rerunPastEvent = 0;
 
     // Store the past command details
     char * prevCommDetails = (char *) malloc(4096 * sizeof(char));
@@ -58,20 +54,15 @@ int main()
 
         // Print appropriate prompt with username, systemname and directory before accepting input
         char input[4096];
-        if (!rerunPastEvent) {
-            prompt(starting_directory, prevCommandName, time_taken);
-            fgets(input, 4096, stdin);
-        }
-        else {
-            // printf("Rerunning past event\n");
-            strcpy(input, prevCommDetails);
-            rerunPastEvent = 0;
-            prevCommDetails[0] = '\0';
-        }
-        resetTimeTaken = 1;
+        // if (!rerunPastEvent) {
+        prompt(starting_directory, prevCommandName, time_taken);
+        fgets(input, 4096, stdin);
+        replacePastEventCommands(input);
 
-        // Check if the word "pastevents" occurs in the input
-        int dontAddToHistory = (strstr(input, "pastevents") != NULL);
+        char rawInput[4096]; // Save the input for later use
+        strcpy(rawInput, input);
+
+        int dontAddToHistory = 0;
         int errorOccured = 0;
 
         struct CommandList cl = executeCommands(input);
@@ -127,10 +118,8 @@ int main()
                     erroneousFlag = execvp(commandName, command_args);
 
                     if (erroneousFlag == -1) {
-                        // printf("\033[31mERROR: ''\033[0m%s\n", errorString);
-                        // free(errorString);
-                        // errorOccured = 1;
                         printf("\033[31mERROR: '%s' is not a valid command\033[0m\n", commandName);
+                        erroneousFlag = 1;
                         exit(EXIT_FAILURE);
                     }
                 } else { // Parent process block
@@ -157,14 +146,8 @@ int main()
                         erroneousFlag = executeCommand(commandName, num_args, command_args, &errorString, starting_directory, &previous_directory, &prevCommDetails);
                     
                         if (erroneousFlag == 2) {
-                            // A past events execute successfully completed 
-                            // and the command details are stored in prevCommDetails
-                            printf("The command details are : %s\n", prevCommDetails);
-                            rerunPastEvent = 1;
-                            erroneousFlag = 0;
-
-                            // continue;
-                            // Store the command_details in another temp array
+                            dontAddToHistory = 1;
+                            erroneousFlag = 1;
                         }
                     }
                     else {
@@ -172,10 +155,11 @@ int main()
                         command_args[num_args] = NULL;
 
                         // Call execvp
-                        erroneousFlag = execvp(commandName, command_args);
+                        execvp(commandName, command_args);
+
+                        // Error handling
                         printf("\033[31mERROR : %s is not a valid command\033[0m\n", commandName);
                         exit(EXIT_FAILURE);
-                        erroneousFlag = 0;
                     }
                 } else if (pid < 0) { // Error in forking block
                     perror("fork");
@@ -184,12 +168,10 @@ int main()
                     time_t start = time(NULL);
                     int status;
                     if (waitpid(pid, &status, 0) > 0) {
-                        // if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
-                        //     printf("Foreground process executed successfully\n");
-                        // } else {
-                        //     printf("Foreground process terminated abnormally or with an error\n");
-                        // }
-                        // End timer
+                        // Set error flag if EXITFAILURE
+                        if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
+                            errorOccured = 1;
+                        }
                         time_t end = time(NULL);
 
                         // Calculate time taken
@@ -200,11 +182,9 @@ int main()
 
                         // Time taken to be reset next cycle or noot
                         resetTimeTaken = 0;
-                
-                        // printf("Time taken : %lf\n", time_taken);
                     } else {
                         perror("waitpid");
-                        // Handle waitpid error
+                        errorOccured = 1;
                     }
                 }
                 
@@ -217,10 +197,10 @@ int main()
         }
 
         // addEventToHistory(cl, dontAddToHistory);
+        if ((!dontAddToHistory) && (!errorOccured)) {
+            addEventToHistory(rawInput);
+        }
 
-        // if ((!dontAddToHistory) && (!errorOccured)) {
-        //     addEventToHistory()
-        // }
          check_background_processes();
     }
 }

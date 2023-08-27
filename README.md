@@ -13,3 +13,4 @@
 - The implementation for `seek.c` was written by me while referring to most of the `peek.c` code. However, the DFS over directory DAG was written by me completely (with maybe Copilot autcompleting repetitive lines).
 - Any code that is handling the `bg` process, is a mix of many online blog posts, me, and ChatGPT.
 - Any declarations not here can be found in the individual files.
+- `peek -la` and `peek -al` will be considered different when storing in the `pastevents.log`.

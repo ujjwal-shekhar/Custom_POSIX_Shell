@@ -44,89 +44,93 @@ int clearHistory(char **errorString) {
     fclose(fp);
 }
 
-int addEventToHistory(struct CommandList cl, int dontAddToHistory) {
-    // If we are not supposed to add to history then we won't
-    // if (dontAddToHistory) return 0;
-
-    // Make an empty command_details string
-    // The plan is to append the each command in cl
-    // to this with a ";" or "&" in between depending
-    // on the print proc id flag
-    // A special case to handle is that
-    // the last command should not have a ";", it can
-    // however have an "&"
-    // Another thing to handle is that if "pastevents execute i"
-    // is found, we will first replace that with the command
-    // at index i in the history and then add it to the history
-    // Apart from this we will also have to handle the case
-    // where the command is `pastevents purge` or `pastevents`
-    // In this case we will not add anything to the history
+int addEventToHistory(char * input) {
+    // Write the entire input onto the
+    // pastevents.log file without trailing newlines
     // Autocompleted by ChatGPT3.5-Turbo
-    char command_details[4096] = "";
 
-    // If the command is `pastevents purge` or `pastevents`
-    // then we will not add anything to the history
-    int numCommands = cl.num_commands;
-    struct Command *commands = cl.commands;
+    // Get the last line from the log file
+    FILE *fp = fopen("/home/ujjwal-shake-her/M23_Code_Thingies/OSN/A1/pasteventsHandler/pastevents.log", "r");
+    if (fp == NULL) {
+        // errorHandler("", errorString);
+        printf("\033[31mpastevents.log does not exist\033[0m\n");
+        return 2;
+    }
 
-    // Let's iterate over every command and replace 
-    // all occurences of pastevents execute i
-    // with the command at index i in the history
+    // Get the last line of the log
+    char lastLine[4096];
+    while (fgets(lastLine, sizeof(lastLine), fp)) {
+        // Remove the newline character at the end
+        lastLine[strcspn(lastLine, "\n")] = '\0';
+    }
 
-    // char *command_details_temp = malloc(4096 * sizeof(char));
-    // if (command_details_temp == NULL) {
-    //     printf("Malloc failed\n");
-    //     return 1;
-    // }
-    // command_details_temp[0] = '\0';
+    fclose(fp);
 
-    // // Open the log file
-    // FILE *fp = fopen("/home/ujjwal-shake-her/M23_Code_Thingies/OSN/A1/pasteventsHandler/pastevents.log", "r");
-    // if (fp == NULL) {
-    //     errorHandler("\033[31mpastevents.log does not exist\033[0m", errorString);
-    //     return 1;
-    // }
+    // Open the log file
+    fp = fopen("/home/ujjwal-shake-her/M23_Code_Thingies/OSN/A1/pasteventsHandler/pastevents.log", "a");
+    if (fp == NULL) {
+        // errorHandler("", errorString);
+        printf("\033[31mpastevents.log does not exist\033[0m\n");
+        return 2;
+    }
 
-    // // Read the log file
-    // char history[15][4096];
-    // // Read the contents of the file into the array
-    // // Each string will be newline separated
-    // // There will be a maximum of 15 strings
-    // // Autocompleted by ChatGPT3.5-Turbo
-    // int numLines = 0;
-    // while (numLines < 15 && fgets(history[numLines], sizeof(history[numLines]), fp)) {
-    //     // Remove the newline character at the end
-    //     history[numLines][strcspn(history[numLines], "\n")] = '\0';
-    //     numLines++;
-    // }
+    // Remove trailing whitespace from input
+    input[strcspn(input, "\n")] = '\0';
 
-    // fclose(fp);
+    // Write the input to the file if it doesnt match the last line
+    if (strcmp(input, lastLine) != 0)
+        fprintf(fp, "\n%s", input);
 
-    // // Reverse the array
-    // for (int i = 0; i < numLines / 2; i++) {
-    //     char temp[4096];
-    //     strcpy(temp, history[i]);
-    //     strcpy(history[i], history[numLines - i - 1]);
-    //     strcpy(history[numLines - i - 1], temp);
-    // }
+    fclose(fp);
 
-    // // Print the array
-    // // for (int i = 0; i < numLines; i++) {
-    // //     printf("History : %s\n", history[i]);
-    // // }
+    // If the number of items in the log file is greater than 15
+    // then we will remove the first line
+    // Autocompleted by ChatGPT3.5-Turbo
 
-    // int fetchIndex = -1;
+    // Open the log file
+    fp = fopen("/home/ujjwal-shake-her/M23_Code_Thingies/OSN/A1/pasteventsHandler/pastevents.log", "r");
+    if (fp == NULL) {
+        printf("\033[31mpastevents.log does not exist\033[0m\n");
+        return 2;
+    }
 
-    // // Check if the fetchIndex is valid
-    // if ((fetchIndex >= numLines) || (fetchIndex < 0)) {
-    //     // errorHandler("\033[31mInvalid index\033[0m", errorString);
-    //     return 1;
-    // }
+    // Read the log file
+    char history[16][4096];
+    // Read the contents of the file into the array
+    // Each string will be newline separated
+    // There will be a maximum of 15 strings
+    // Autocompleted by ChatGPT3.5-Turbo
+    int numLines = 0;
+    while (numLines < 16 && fgets(history[numLines], sizeof(history[numLines]), fp)) {
+        // Remove the newline character at the end
+        history[numLines][strcspn(history[numLines], "\n")] = '\0';
+        numLines++;
+    }
+    
 
-    // // Copy the command_details to the command_details pointer
-    // strcpy(command_details_temp, history[fetchIndex]);
+    fclose(fp);
 
-    //
+    // If the number of lines is greater than 15
+    // then we will remove the first line
+    if (numLines >= 16) {
+        // Open the log file
+        fp = fopen("/home/ujjwal-shake-her/M23_Code_Thingies/OSN/A1/pasteventsHandler/pastevents.log", "w");
+        if (fp == NULL) {
+            // errorHandler("", errorString)
+            printf("\033[31mpastevents.log does not exist\033[0m\n");
+            return 2;
+        }
+
+        // Write the contents of the array to the file
+        for (int i = 1; i < numLines - 1; i++) {
+            fprintf(fp, "%s\n", history[i]);
+        }
+        fprintf(fp, "%s", history[numLines - 1]);
+
+        fclose(fp);
+    }
+    
+    return 0;
 }
 
 int getIndexInHistory(char **errorString, int fetchIndex, char ** command_details) {
@@ -181,4 +185,55 @@ int getIndexInHistory(char **errorString, int fetchIndex, char ** command_detail
     strcpy(*command_details, history[fetchIndex]);
 
     return 0;
+}
+
+// Function to replace "pastevents execute i" with history entry
+int replacePastEventCommands(char *input) {
+    int modified = 0; // Flag to check if any replacement was made
+
+    // Open the log file
+    FILE *fp = fopen("/home/ujjwal-shake-her/M23_Code_Thingies/OSN/A1/pasteventsHandler/pastevents.log", "r");
+    if (fp == NULL) {
+        // errorHandler("", errorString);
+        printf("\033[31mpastevents.log does not exist\033[0m\n");
+        return 2;
+    }
+
+    // Read the log file
+    char history[15][4096];
+    // Read the contents of the file into the array
+    // Each string will be newline separated
+    // There will be a maximum of 15 strings
+    // Autocompleted by ChatGPT3.5-Turbo
+    int numLines = 0;
+    while (numLines < 15 && fgets(history[numLines], sizeof(history[numLines]), fp)) {
+        // Remove the newline character at the end
+        history[numLines][strcspn(history[numLines], "\n")] = '\0';
+        numLines++;
+    }
+
+    fclose(fp);
+
+    // Reverse the array
+    for (int i = 0; i < numLines / 2; i++) {
+        char temp[4096];
+        strcpy(temp, history[i]);
+        strcpy(history[i], history[numLines - i - 1]);
+        strcpy(history[numLines - i - 1], temp);
+    }
+
+
+    for (int i = 0; i < numLines; i++) {
+        char pastEventCmd[50];
+        sprintf(pastEventCmd, "pastevents execute %d", i + 1);
+
+        char *pos = strstr(input, pastEventCmd);
+        if (pos != NULL) {
+            // Replace the occurrence with history entry
+            strcpy(pos, history[i]);
+            modified = 1; // Flag that a replacement was made
+        }
+    }
+
+    return modified;
 }
