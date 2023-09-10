@@ -20,6 +20,26 @@ int executeCommand(char* commandName, int num_args, char *command_args[], char *
         }
     }
 
+    // Check if proclore command was entered
+    else if (strncmp(commandName, "activities\0", 11) == 0) {
+        // Check if there were no arguments
+        if (num_args > 1) {
+            return 1;
+        } else {
+            return activities(command_args);
+        }
+    }
+
+    // Check if proclore command was entered
+    else if (strncmp(commandName, "ping\0", 5) == 0) {
+        // Check if there were no more than 3 arguments
+        if (num_args > 3) {
+            return 1;
+        } else {
+            return ping(command_args);
+        }
+    }
+
     // Check if warp command was entered
     else if (strncmp(commandName, "warp\0", 5) == 0) {
         int notWhiteSpace = 0;

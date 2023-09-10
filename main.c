@@ -13,6 +13,8 @@ void sigchld_handler(int signo) {
     }
 }
 
+// int numBackgroundProcesses = 0;
+
 int main()
 {
     // Get the working directory of starting directory
@@ -36,17 +38,19 @@ int main()
         exit(EXIT_FAILURE);
     }
     prevCommDetails[0] = '\0';
+
     struct sigaction sa;
     sa.sa_handler = sigchld_handler;
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_RESTART | SA_NOCLDSTOP;
     sigaction(SIGCHLD, &sa, NULL);
+
+    // struct ProcessDetails backgroundProcesses[MAX_BACKGROUND_PROCESSES + 1];
+    // int numBackgroundProcesses = 0;
     // Keep accepting commands
     while (1)
     {
-
         // Call the signal handler
-
         if (resetTimeTaken) {
             time_taken = 0.0;
             prevCommandName[0] = '\0';
@@ -72,21 +76,36 @@ int main()
         int j;
 
         // Execute the commands
-        for (j = 0; j < numCommands; j++) {
+        for (j = 0; j < numCommands; j++) {            
+            int isBackground = commands[j].printProcId;
+
             // Split each command by whitespace
             char *command_details = commands[j].command_details;
             char *command_args[4096];
+
+            printf("%s", command_details);
+
+            char * errorString;
+            struct PipedCommandDetails pcd =  pipe_split(command_details, command_args, isBackground, &errorString, starting_directory, &previous_directory);
 
             // Autocompleted by Github copilot
             struct CommandArgs ca = parseCommandArgs(command_details, command_args);
 
             // To handle and display errors
             int erroneousFlag = 0;
-            char * errorString;
 
             int num_args = ca.num_args;
             char* commandName = ca.command_args[0];
-            int isBackground = commands[j].printProcId;
+
+            // Print all the command arguments
+            printf("Command arguments:\n");
+            for (int i = 0; i < num_args; i++) {
+                printf("%d : %s\n", i, command_args[i]);
+            }
+
+            // Check if redirection or pipe is present
+            int redirectionPresent = 0, pipePresent = 0;
+
 
             if (isBackground) {
                 // Check if command is a valid system command
@@ -129,7 +148,7 @@ int main()
             } else {
                 pid_t pid = fork();
 
-                char * userCommandsList[] = {"warp\0", "peek\0", "pastevents\0", "proclore\0", "exit\0", "seek\0", NULL};
+                char * userCommandsList[] = {"warp\0", "peek\0", "pastevents\0", "proclore\0", "exit\0", "seek\0", "ping\0", "activities\0", NULL};
                 clock_t start_time, end_time;  // Variables to store start and end times
                 
                 // Check if the commandName is one of the the userCommandsList
@@ -149,6 +168,8 @@ int main()
                             dontAddToHistory = 1;
                             erroneousFlag = 1;
                         }
+
+                        exit(EXIT_SUCCESS);
                     }
                     else {
                         // Make the last entry of command_args as NULL

@@ -4,6 +4,7 @@
 # Assumptions
 - Assumed that the file format for history will be `.log`
 - Assumed that during the vivas an empty `pastevents.log` file will be manually created by either the TA or me in the `pasteventsHandler/` directory. 
+- Assumed that I dont have to handle stuff like `COMMAND &> FILE`.
 
 # Usage of AI tools
 - The `utils` directory is almost entirely my idea and the only help that AI tools did there was to auto complete some of the grunt code

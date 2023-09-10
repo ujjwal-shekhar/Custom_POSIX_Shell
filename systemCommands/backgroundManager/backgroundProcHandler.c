@@ -3,6 +3,14 @@
 struct ProcessDetails backgroundProcesses[MAX_BACKGROUND_PROCESSES + 1];
 int numBackgroundProcesses = 0;
 
+struct ProcessDetails * get_background_processes() {   
+    return backgroundProcesses;
+}
+
+int get_num_bg_processes() {
+    return numBackgroundProcesses;
+}
+
 void update_background_status() {
     int status;
     
@@ -17,7 +25,7 @@ void update_background_status() {
         // printf("The pid is %d\n", backgroundProcesses[i].pid);
         // printf("The completed is %d\n", backgroundProcesses[i].completed);
         
-        pid_t pid = waitpid(backgroundProcesses[i].pid, &status, WNOHANG);
+        pid_t pid = waitpid(backgroundProcesses[i].pid, &status, WNOHANG | WUNTRACED);
         if (pid == -1) {
             // printf("Error in waitpid\n");
         } else if(pid ==0){

@@ -3,7 +3,11 @@
 struct CommandArgs parseCommandArgs(char *command_details, char ** command_args) {
     struct CommandArgs ca;
     ca.num_args = 0;
-    ca.command_details = command_details;
+    // ca.command_details = command_details;
+    // Copy the command_details here
+    ca.command_details = (char *) malloc(strlen(command_details) + 1);
+    strcpy(ca.command_details, command_details);
+    
     ca.command_args = command_args;
 
     // Initialize the command_args array

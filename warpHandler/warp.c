@@ -30,7 +30,7 @@ int warp(char ** command_args, char ** errorString, char starting_directory[], c
         // Replace that character with starting_directory
         if (strchr(command_args[i], '~') != NULL) {
             // Replace the character "~" with starting_directory
-            char *new_directory = malloc(4096);
+            char *new_directory = (char *)malloc(4096);
             strcpy(new_directory, starting_directory);
             strcat(new_directory, command_args[i] + 1);
 

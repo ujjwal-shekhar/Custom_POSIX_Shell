@@ -1,11 +1,6 @@
 #ifndef HEADERS_H_
 #define HEADERS_H_
 
-struct CommandList {
-    struct Command * commands;
-    int num_commands;
-} commandList;
-
 #include <stdio.h>
 #include <unistd.h> //
 #include <stdlib.h>
@@ -28,6 +23,8 @@ struct CommandList {
 #include "seekHandler/seek.h"
 
 #include "procloreHandler/proclore.h"
+#include "pingHandler/ping.h"
+#include "activitiesHandler/activities.h"
 
 #include "pasteventsHandler/pastevents.h"
 
@@ -39,5 +36,24 @@ struct CommandList {
 #include "utils/inputHandlers/commandHandler.h"
 #include "utils/inputHandlers/commandArgsHandler.h"
 #include "utils/inputHandlers/commandExecutor.h"
+
+#include "redirPipeHandler/pipeHandler.h"
+#include "redirPipeHandler/redirectionHandler.h"
+
+struct CommandList {
+    struct Command * commands;
+    int num_commands;
+} commandList;
+
+struct ProcessDetails {
+    pid_t pid;
+    int completed; // bool
+    int normallyExited ; // -1 : not exited, 0 : abnormally, 1 : normally
+    char *commandName;
+};
+
+#define MAX_BACKGROUND_PROCESSES 10
+
+// struct ProcessDetails backgroundProcesses[MAX_BACKGROUND_PROCESSES + 1];
 
 #endif
