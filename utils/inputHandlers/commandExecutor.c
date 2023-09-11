@@ -1,5 +1,91 @@
 #include "../../headers.h"
 
+// int command_selector(commandName, num_args, command_args, &errorString, starting_directory, &previous_directory, &prevCommDetails) {
+//     if (checkUserCommand(commandName)) {
+//         erroneousFlag = executeCommand(commandName, num_args, command_args, &errorString, starting_directory, &previous_directory, &prevCommDetails);
+
+//         if (erroneousFlag == 2) {
+//             dontAddToHistory = 1;
+//             erroneousFlag = 1;
+//         }
+
+//         exit(EXIT_SUCCESS);
+//     } else {
+//         // Make the last entry of command_args as NULL
+//         command_args[num_args] = NULL;
+
+//         // Call execvp
+//         execvp(commandName, command_args);
+
+//         // Error handling
+//         printf("\033[31mERROR : %s is not a valid command\033[0m\n", commandName);
+//         exit(EXIT_FAILURE);
+//     }
+// }
+
+// int spawn_proc(int in, int out, char* commandName, int num_args, char *command_args[], char ** errorString, char starting_directory[], char ** previous_directory, char ** prevCommDetails) {
+//     pid_t pid = fork();  
+
+//     if (isBackground) {
+//         perror("skill issue rn");
+//     } else {
+//         if (pid == 0) {
+//             if (in != 0) {
+//                 dup2(in, 0);
+//                 close(in);
+//             } 
+
+//             if (out != 1) {
+//                 dup2(out, 1);
+//                 close(out);
+//             }
+
+//             return command_selector(commandName, num_args, command_args, &errorString, starting_directory, &previous_directory, &prevCommDetails);
+//         } else if (pid > 0) {
+//             clock_t start_time, end_time;  // Variables to store start and end times
+//             time_t start = time(NULL);
+//             int status;
+//             if (waitpid(pid, &status, 0) > 0) {
+//                 // Set error flag if EXITFAILURE
+//                 if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
+//                     errorOccured = 1;
+//                 }
+//                 time_t end = time(NULL);
+
+//                 // Calculate time taken
+//                 time_taken = difftime(end, start);
+
+//                 // Set the command Name in case the prompt might need it
+//                 strcpy(prevCommandName, commandName);
+
+//                 // Time taken to be reset next cycle or noot
+//                 resetTimeTaken = 0;
+//             } else {
+//                 perror("wait");
+//                 return 1;
+//             }
+//         } else {
+//             perror("fork");
+//             return 1;
+//         }
+//     }
+// }
+
+int checkUserCommand(char * commandName) {
+    char * userCommandsList[] = {"warp\0", "peek\0", "pastevents\0", "proclore\0", "exit\0", "seek\0", "ping\0", "activities\0", NULL};
+    
+    // Check if the commandName is one of the the userCommandsList
+    int isUserCommand = 0;
+    for (int i = 0; (userCommandsList[i] != NULL); i++) {
+        if (strcmp(commandName, userCommandsList[i]) == 0) {
+            isUserCommand = 1;
+            break;
+        }
+    }
+
+    return isUserCommand;
+}
+
 int executeCommand(char* commandName, int num_args, char *command_args[], char ** errorString, char starting_directory[], char ** previous_directory, char ** prevCommDetails) {
     // Check if exit command was entered
     if (strcmp(commandName, "exit") == 0) {

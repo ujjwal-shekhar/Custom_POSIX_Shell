@@ -10,6 +10,6 @@ struct CommandArgs {
     int outputAppend; // 1 if  ">>", 0 if ">"
 } commandArgs;
 
-struct CommandArgs parseCommandArgs(char *command_details, char **command_args);
+int parseCommandArgs(char *command_details, char ** command_args, struct CommandArgs *ca);
 
 #endif
