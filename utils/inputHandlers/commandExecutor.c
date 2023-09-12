@@ -1,5 +1,6 @@
 #include "../../headers.h"
 
+
 // int command_selector(commandName, num_args, command_args, &errorString, starting_directory, &previous_directory, &prevCommDetails) {
 //     if (checkUserCommand(commandName)) {
 //         erroneousFlag = executeCommand(commandName, num_args, command_args, &errorString, starting_directory, &previous_directory, &prevCommDetails);
@@ -72,7 +73,7 @@
 // }
 
 int checkUserCommand(char * commandName) {
-    char * userCommandsList[] = {"warp\0", "peek\0", "pastevents\0", "proclore\0", "exit\0", "seek\0", "ping\0", "activities\0", NULL};
+    char * userCommandsList[] = {"warp\0", "peek\0", "pastevents\0", "proclore\0", "exit\0", "seek\0", "ping\0", "activities\0", "iMan\0", NULL};
     
     // Check if the commandName is one of the the userCommandsList
     int isUserCommand = 0;
@@ -93,6 +94,16 @@ int executeCommand(char* commandName, int num_args, char *command_args[], char *
             return 1;
         } else {
             exit(EXIT_SUCCESS);
+        }
+    }
+
+    // Check if iMan was entered
+    else if (strncmp(commandName, "iMan\0", 5) == 0) {
+        // Check if there were no more than 2 arguments
+        if (num_args > 2) {
+            return 1;
+        } else {
+            return iman(command_args);
         }
     }
 
@@ -138,13 +149,11 @@ int executeCommand(char* commandName, int num_args, char *command_args[], char *
         }
 
         if (command_args[1] == NULL) {
-            command_args[1] = "~";
+            command_args[1] = ".";
             command_args[2] = NULL;
         } else if (notWhiteSpace == 0) {
-            command_args[1] = "~";
+            command_args[1] = ".";
             command_args[2] = NULL;
-        } else if (command_args[1] == "-") {
-            // Add code for pwd later
         }
         return warp(command_args, errorString, starting_directory, previous_directory);
     }

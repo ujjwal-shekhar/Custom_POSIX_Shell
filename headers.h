@@ -14,6 +14,8 @@
 #include <time.h>
 #include <ctype.h>
 #include <fcntl.h>
+#include <netdb.h>
+#include <arpa/inet.h>
 
 #include "prompt.h"
 
@@ -39,6 +41,8 @@
 
 #include "redirPipeHandler/pipeHandler.h"
 #include "redirPipeHandler/redirectionHandler.h"
+
+#include "iManHandler/iManHandler.h"
 
 struct CommandList {
     struct Command * commands;
