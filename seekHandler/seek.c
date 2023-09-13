@@ -18,11 +18,13 @@ the code is 40% copilot and 60% me
 
 int numMatchingFiles = 0, numMatchingDirs = 0;
 
-int traverseDirectry(char * searchTerm, char ** errorString, char * path, int dFlag, int fFlag, char ** directoryPath, char ** filePath) {
+int traverseDirectry(char * searchTerm, char * path, int dFlag, int fFlag, char ** directoryPath, char ** filePath) {
     // Open the directory
     DIR *dir = opendir(path);
     if (!dir) {
-        errorHandler("\033[31mUnable to open directory\033[0m", errorString);
+        fprintf(stderr, RED_COLOR);
+        fprintf(stderr, "ERROR : Unable to find directory\n");
+        fprintf(stderr, RESET_COLOR);
         return 1;        
     }
 
@@ -44,8 +46,10 @@ int traverseDirectry(char * searchTerm, char ** errorString, char * path, int dF
 
                     char * tempPath = (char *) malloc(sizeof(char) * 4096);
                     if (tempPath == NULL) {
-                        errorHandler("\033[31mMemory allocation failed\033[0m", errorString);
-                        return 1;
+                        fprintf(stderr, RED_COLOR);
+                        fprintf(stderr, MEMORY_ALLOC_ERROR);
+                        fprintf(stderr, RESET_COLOR);
+                        exit(EXIT_FAILURE);
                     }
 
                     strcpy(tempPath, path);
@@ -66,7 +70,7 @@ int traverseDirectry(char * searchTerm, char ** errorString, char * path, int dF
                 strcpy(childPath, path);
                 strcat(childPath, "/");
                 strcat(childPath, entry->d_name);
-                traverseDirectry(searchTerm, errorString, childPath, dFlag, fFlag, directoryPath, filePath);
+                traverseDirectry(searchTerm, childPath, dFlag, fFlag, directoryPath, filePath);
             }
         } else if (entry->d_type == DT_REG) {
             // printf("%s\n", entry->d_name);
@@ -95,7 +99,7 @@ int traverseDirectry(char * searchTerm, char ** errorString, char * path, int dF
     closedir(dir);
 }
 
-int seek(char ** command_args, char ** errorString, char starting_directory[], char ** previous_directory) {
+int seek(char ** command_args, char starting_directory[], char ** previous_directory) {
     int dFlag = 0, fFlag = 0, eFlag = 0;
     char * path = NULL;
     char * searchTerm = NULL;
@@ -118,8 +122,8 @@ int seek(char ** command_args, char ** errorString, char starting_directory[], c
 
         if (isWhitepace) break;
 
-        struct FlagInfo fi = flagHandler(command_args[i], errorString, starting_directory, "-");
-        struct PathInfo pi = pathHandler(command_args[i], errorString, starting_directory, previous_directory);
+        struct FlagInfo fi = flagHandler(command_args[i], starting_directory, "-");
+        struct PathInfo pi = pathHandler(command_args[i], starting_directory, previous_directory);
 
         // This is either a flag
         if (fi.isFlag) {
@@ -129,7 +133,9 @@ int seek(char ** command_args, char ** errorString, char starting_directory[], c
             for (int j=0; j<strlen(fi.flags); j++) {
                 // Detect invalid flags
                 if (fi.flags[j] != 'd' && fi.flags[j] != 'e' && fi.flags[j] != 'f') {
-                    errorHandler("\033[31mInvalid flag\033[0m", errorString);
+                    fprintf(stderr, RED_COLOR);
+                    fprintf(stderr, "SYNTAX ERROR : Invalid flag(s)\n");
+                    fprintf(stderr, RESET_COLOR);
                     return 1;
                 }
 
@@ -141,7 +147,9 @@ int seek(char ** command_args, char ** errorString, char starting_directory[], c
             if (posLast[1] != -1) { // If a search term was found already
                 posLast[2] = i;
                 if (!pi.isPath) {
-                    errorHandler("\033[31mInvalid path\033[0m", errorString);
+                    fprintf(stderr, RED_COLOR);
+                    fprintf(stderr, "SYNTAX ERROR : Invalid path\n");
+                    fprintf(stderr, RESET_COLOR);
                     return 1;
                 } else {
                     path = pi.path;
@@ -159,10 +167,14 @@ int seek(char ** command_args, char ** errorString, char starting_directory[], c
         (posLast[1] != -1) &&
         (posLast[2] != -1)
     )) {
-        errorHandler("\033[31mSyntax Error\nCorrect Usage : seek <flags> <search_term> <path/name>\033[0m", errorString);
+        fprintf(stderr, RED_COLOR);
+        fprintf(stderr, "SYNTAX ERROR : Correct Usage : peek <flags> <path/name>\n");
+        fprintf(stderr, RESET_COLOR);
         return 1;
     } else if (dFlag && fFlag) {
-        errorHandler("\033[31mInvalid flags!\033[0m", errorString);
+        fprintf(stderr, RED_COLOR);
+        fprintf(stderr, "SYNTAX ERROR : Invalid flag(s)\n");
+        fprintf(stderr, RESET_COLOR);
         return 1;
     }
 
@@ -176,19 +188,23 @@ int seek(char ** command_args, char ** errorString, char starting_directory[], c
     char * filePath = (char *) malloc(sizeof(char) * 4096);
 
     if (directoryPath == NULL || filePath == NULL) {
-        errorHandler("\033[31mMemory allocation failed\033[0m", errorString);
+        fprintf(stderr, RED_COLOR);
+        fprintf(stderr, MEMORY_ALLOC_ERROR);
+        fprintf(stderr, RESET_COLOR);
         return 1;
     }
 
     // Call traverseDirectory
-    traverseDirectry(searchTerm, errorString, path, dFlag, fFlag, &directoryPath, &filePath);
+    traverseDirectry(searchTerm, path, dFlag, fFlag, &directoryPath, &filePath);
 
     // Handling the "-e" flag
     if (numMatchingFiles + numMatchingDirs == 1) {
         if (dFlag && numMatchingDirs) {
 
             if (chdir(searchTerm) != 0) {
-                errorHandler("\033[31mMissing permissions for task!\033[0m", errorString);
+                fprintf(stderr, RED_COLOR);
+                fprintf(stderr, "Missing permissions for task!");
+                fprintf(stderr, RESET_COLOR);
                 return 1;
             }
         } if (fFlag && numMatchingFiles) {
@@ -196,7 +212,9 @@ int seek(char ** command_args, char ** errorString, char starting_directory[], c
             // Print the contents of the file
             FILE * file = fopen(filePath, "r");
             if (file == NULL) {
-                errorHandler("\033[31mUnable to open file\033[0m", errorString);
+                fprintf(stderr, RED_COLOR);
+                fprintf(stderr, "Unable to open file!");
+                fprintf(stderr, RESET_COLOR);
                 return 1;
             }
 

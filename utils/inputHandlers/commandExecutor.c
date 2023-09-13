@@ -1,77 +1,5 @@
 #include "../../headers.h"
 
-
-// int command_selector(commandName, num_args, command_args, &errorString, starting_directory, &previous_directory, &prevCommDetails) {
-//     if (checkUserCommand(commandName)) {
-//         erroneousFlag = executeCommand(commandName, num_args, command_args, &errorString, starting_directory, &previous_directory, &prevCommDetails);
-
-//         if (erroneousFlag == 2) {
-//             dontAddToHistory = 1;
-//             erroneousFlag = 1;
-//         }
-
-//         exit(EXIT_SUCCESS);
-//     } else {
-//         // Make the last entry of command_args as NULL
-//         command_args[num_args] = NULL;
-
-//         // Call execvp
-//         execvp(commandName, command_args);
-
-//         // Error handling
-//         printf("\033[31mERROR : %s is not a valid command\033[0m\n", commandName);
-//         exit(EXIT_FAILURE);
-//     }
-// }
-
-// int spawn_proc(int in, int out, char* commandName, int num_args, char *command_args[], char ** errorString, char starting_directory[], char ** previous_directory, char ** prevCommDetails) {
-//     pid_t pid = fork();  
-
-//     if (isBackground) {
-//         perror("skill issue rn");
-//     } else {
-//         if (pid == 0) {
-//             if (in != 0) {
-//                 dup2(in, 0);
-//                 close(in);
-//             } 
-
-//             if (out != 1) {
-//                 dup2(out, 1);
-//                 close(out);
-//             }
-
-//             return command_selector(commandName, num_args, command_args, &errorString, starting_directory, &previous_directory, &prevCommDetails);
-//         } else if (pid > 0) {
-//             clock_t start_time, end_time;  // Variables to store start and end times
-//             time_t start = time(NULL);
-//             int status;
-//             if (waitpid(pid, &status, 0) > 0) {
-//                 // Set error flag if EXITFAILURE
-//                 if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
-//                     errorOccured = 1;
-//                 }
-//                 time_t end = time(NULL);
-
-//                 // Calculate time taken
-//                 time_taken = difftime(end, start);
-
-//                 // Set the command Name in case the prompt might need it
-//                 strcpy(prevCommandName, commandName);
-
-//                 // Time taken to be reset next cycle or noot
-//                 resetTimeTaken = 0;
-//             } else {
-//                 perror("wait");
-//                 return 1;
-//             }
-//         } else {
-//             perror("fork");
-//             return 1;
-//         }
-//     }
-// }
-
 int checkUserCommand(char * commandName) {
     char * userCommandsList[] = {"warp\0", "peek\0", "pastevents\0", "proclore\0", "exit\0", "seek\0", "ping\0", "activities\0", "iMan\0", NULL};
     
@@ -139,23 +67,26 @@ int executeCommand(char* commandName, int num_args, char *command_args[], char *
 
     // Check if warp command was entered
     else if (strncmp(commandName, "warp\0", 5) == 0) {
-        int notWhiteSpace = 0;
+        // Check if the first argument is empty
+        if (command_args[1] == NULL) {
+            command_args[1] = ".";
+            command_args[2] = NULL;
+        } 
+        
+        int isWhiteSpace = 1;
         // Check if the entire command_arg[1] is a whitespace
         for (int k = 0; k < strlen(command_args[1]); k++) {
             if (!isspace(command_args[1][k])) {
-                notWhiteSpace = 1;
+                isWhiteSpace = 0;
                 break;
             }
         }
 
-        if (command_args[1] == NULL) {
-            command_args[1] = ".";
-            command_args[2] = NULL;
-        } else if (notWhiteSpace == 0) {
+        if (isWhiteSpace) {
             command_args[1] = ".";
             command_args[2] = NULL;
         }
-        return warp(command_args, errorString, starting_directory, previous_directory);
+        return warp(command_args, starting_directory, previous_directory);
     }
 
     // Check if `peek` command was entered
@@ -164,7 +95,7 @@ int executeCommand(char* commandName, int num_args, char *command_args[], char *
         if (num_args > 4) {
             return 1;
         } else {
-            return peek(command_args, errorString, starting_directory, previous_directory);
+            return peek(command_args, starting_directory, previous_directory);
         }
     }
 
@@ -174,7 +105,7 @@ int executeCommand(char* commandName, int num_args, char *command_args[], char *
         if (num_args > 6) {
             return 1;
         } else {
-            return seek(command_args, errorString, starting_directory, previous_directory);
+            return seek(command_args, starting_directory, previous_directory);
         }
     }
 
@@ -187,13 +118,13 @@ int executeCommand(char* commandName, int num_args, char *command_args[], char *
         } else {
             // If only one arg : display the whole history
             if (num_args == 1) {
-                showHistory(errorString);
+                showHistory();
                 return 2;
             }
 
             // If two args, then purge the file
             else if ((num_args == 2) && (strncmp(command_args[1], "purge\0", 6) == 0)) {
-                clearHistory(errorString);
+                clearHistory();
                 return 2;
             }
 

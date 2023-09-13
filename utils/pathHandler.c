@@ -1,53 +1,89 @@
 #include "../headers.h"
 
-struct PathInfo pathHandler(char * command_arg, char ** errorString, char starting_directory[], char ** previous_directory) {
+struct PathInfo pathHandler(char *command_arg, char starting_directory[], char **previous_directory) {
     struct PathInfo pi;
     pi.isPath = 1;
 
-    // Print the command_arg
-    // printf("Command arg : %s\n", command_arg);
+    printf("The command argument inside the pathHandler : %s\n", command_arg);
 
     // Check if the command_arg has "~"
     // Replace "~" with starting directory
     if (command_arg[0] == '~') {
-        char * temp = (char *) malloc(sizeof(char) * 4096);
+        char *temp = (char *)malloc(strlen(starting_directory) + strlen(command_arg));
+        if (temp == NULL) {
+            fprintf(stderr, RED_COLOR);
+            fprintf(stderr, MEMORY_ALLOC_ERROR);
+            fprintf(stderr, RESET_COLOR);
+            exit(EXIT_FAILURE);
+        }
+
         strcpy(temp, starting_directory);
         strcat(temp, command_arg + 1);
         strcpy(command_arg, temp);
         free(temp);
     } else if (command_arg[0] == '-') {
-        // Check if the environment variable is set
+        // Replace the "-" symbol by the previous directory
+        // If it is empty then don't replace
         if (strlen(*previous_directory) == 0) {
-            errorHandler("\033[31mOLDPWD is not set\033[0m", errorString);
+            // fprintf(stderr, RED_COLOR);
+            // fprintf(stderr, "ERROR : No previous directory found\n");
+            // fprintf(stderr, RESET_COLOR);
             pi.isPath = 0;
             return pi;
         }
 
-        char * temp = (char *) malloc(sizeof(char) * 4096);
+        char *temp = (char *)malloc(strlen(*previous_directory) + strlen(command_arg));
+        if (temp == NULL) {
+            fprintf(stderr, RED_COLOR);
+            fprintf(stderr, MEMORY_ALLOC_ERROR);
+            fprintf(stderr, RESET_COLOR);
+            exit(EXIT_FAILURE);
+        }
+
         strcpy(temp, *previous_directory);
         strcat(temp, command_arg + 1);
         strcpy(command_arg, temp);
         free(temp);
+    } else {
+        // Check if the command_arg is completely blank
+        // or has only whitespace. If so, then change it 
+        // to the current working directory
+        
+        // Check if argument is only white space
+        int isWhitespace = 1;
+        for (int j = 0; j < strlen(command_arg); j++) {
+            if (!isspace(command_arg[j])) {
+                isWhitespace = 0;
+                break;
+            }
+        }
+
+        // Get current working directory
+        char cwd[4096]; 
+        getcwd(cwd, sizeof(cwd));
+
+        if (isWhitespace) {
+            strcpy(command_arg, cwd);
+        }
     }
 
-
-    // printf("the comarg : %s\n", command_arg);
     if (access(command_arg, F_OK) != 0) {
         // Return with error
-        errorHandler("\033[31mThe path is not valid\033[0m", errorString);
+        fprintf(stderr, RED_COLOR);
+        fprintf(stderr, "ERROR : The path is not valid\n");
+        fprintf(stderr, RESET_COLOR);
         pi.isPath = 0;
         return pi;
     } else {
         pi.isPath = 1;
-        pi.path = (char *) malloc(sizeof(char) * (strlen(command_arg) + 1));
+        pi.path = (char *)malloc(strlen(command_arg) + 1);
         if (pi.path == NULL) {
-            // Return with error
-            errorHandler("\033[31mMemory allocation failed\033[0m", errorString);
-            pi.isPath = 0;
-            return pi;
+            fprintf(stderr, RED_COLOR);
+            fprintf(stderr, MEMORY_ALLOC_ERROR);
+            fprintf(stderr, RESET_COLOR);
+            exit(EXIT_FAILURE);
         }
 
-        pi.path[0] = '\0';
         strcpy(pi.path, command_arg);
     }
 

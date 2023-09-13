@@ -23,7 +23,7 @@ int replaceInputRedirect(struct CommandArgs* ca, char ** errorString, char start
     }
 
     // Check if the the token after that is a path or not
-    struct PathInfo pi = pathHandler(ca->command_args[inputRedirectPos + 1], errorString, starting_directory, previous_directory);
+    struct PathInfo pi = pathHandler(ca->command_args[inputRedirectPos + 1], starting_directory, previous_directory);
 
     if (!pi.isPath) {
         return 1;

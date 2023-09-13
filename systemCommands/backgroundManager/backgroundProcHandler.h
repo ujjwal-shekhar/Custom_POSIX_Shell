@@ -1,6 +1,8 @@
 #ifndef BACKGROUND_MANAGER_H
 #define BACKGROUND_MANAGER_H
 
+#include "../../utils/inputHandlers/commandArgsHandler.h"
+
 // #define MAX_BACKGROUND_PROCESSES 10
 
 
@@ -28,6 +30,7 @@ void add_background_process(pid_t pid, const char *command);
 void check_background_processes();
 int get_num_bg_processes();
 struct ProcessDetails * get_background_processes();
+int execute_background_process(pid_t shell_pid, struct CommandArgs ca, char* commandName, int num_args, char* command_details);
 // int numBackgroundProcesses = 0;
 
 #endif // BACKGROUND_MANAGER_H

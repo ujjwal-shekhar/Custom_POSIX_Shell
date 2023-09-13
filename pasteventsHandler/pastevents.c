@@ -1,12 +1,14 @@
 #include "../headers.h"
 
-int showHistory(char **errorString) {
+int showHistory() {
     // Read the pastevents.log file and output it in reverse order
-    FILE *fp = fopen("/home/ujjwal-shake-her/M23_Code_Thingies/OSN/A1/pasteventsHandler/pastevents.log", "r");
+    FILE *fp = fopen(PAST_EVENTS_PATH, "r");
 
     // If the file does not exist, print an error message
     if (fp == NULL) {
-        errorHandler("\033[31mpastevents.log does not exist\033[0m", errorString);
+        fprintf(stderr, RED_COLOR);
+        fprintf(stderr, "ERROR : pastevents.log does not exist\n");
+        fprintf(stderr, RESET_COLOR);
         return 1;
     }
 
@@ -33,11 +35,13 @@ int showHistory(char **errorString) {
     return 0;
 }
 
-int clearHistory(char **errorString) {
+int clearHistory() {
     // Clear the log file
-    FILE *fp = fopen("/home/ujjwal-shake-her/M23_Code_Thingies/OSN/A1/pasteventsHandler/pastevents.log", "w");
+    FILE *fp = fopen(PAST_EVENTS_PATH, "w");
     if (fp == NULL) {
-        errorHandler("\033[31mpastevents.log does not exist\033[0m", errorString);
+        fprintf(stderr, RED_COLOR);
+        fprintf(stderr, "ERROR : pastevents.log does not exist\n");
+        fprintf(stderr, RESET_COLOR);
         return 1;
     }
     
@@ -50,10 +54,11 @@ int addEventToHistory(char * input) {
     // Autocompleted by ChatGPT3.5-Turbo
 
     // Get the last line from the log file
-    FILE *fp = fopen("/home/ujjwal-shake-her/M23_Code_Thingies/OSN/A1/pasteventsHandler/pastevents.log", "r");
+    FILE *fp = fopen(PAST_EVENTS_PATH, "r");
     if (fp == NULL) {
-        // errorHandler("", errorString);
-        printf("\033[31mpastevents.log does not exist\033[0m\n");
+        fprintf(stderr, RED_COLOR);
+        fprintf(stderr, "ERROR : pastevents.log does not exist\n");
+        fprintf(stderr, RESET_COLOR);
         return 2;
     }
 
@@ -67,10 +72,11 @@ int addEventToHistory(char * input) {
     fclose(fp);
 
     // Open the log file
-    fp = fopen("/home/ujjwal-shake-her/M23_Code_Thingies/OSN/A1/pasteventsHandler/pastevents.log", "a");
+    fp = fopen(PAST_EVENTS_PATH, "a");
     if (fp == NULL) {
-        // errorHandler("", errorString);
-        printf("\033[31mpastevents.log does not exist\033[0m\n");
+        fprintf(stderr, RED_COLOR);
+        fprintf(stderr, "ERROR : pastevents.log does not exist\n");
+        fprintf(stderr, RESET_COLOR);
         return 2;
     }
 
@@ -88,9 +94,11 @@ int addEventToHistory(char * input) {
     // Autocompleted by ChatGPT3.5-Turbo
 
     // Open the log file
-    fp = fopen("/home/ujjwal-shake-her/M23_Code_Thingies/OSN/A1/pasteventsHandler/pastevents.log", "r");
+    fp = fopen(PAST_EVENTS_PATH, "r");
     if (fp == NULL) {
-        printf("\033[31mpastevents.log does not exist\033[0m\n");
+        fprintf(stderr, RED_COLOR);
+        fprintf(stderr, "ERROR : pastevents.log does not exist\n");
+        fprintf(stderr, RESET_COLOR);
         return 2;
     }
 
@@ -114,10 +122,11 @@ int addEventToHistory(char * input) {
     // then we will remove the first line
     if (numLines >= 16) {
         // Open the log file
-        fp = fopen("/home/ujjwal-shake-her/M23_Code_Thingies/OSN/A1/pasteventsHandler/pastevents.log", "w");
+        fp = fopen(PAST_EVENTS_PATH, "w");
         if (fp == NULL) {
-            // errorHandler("", errorString)
-            printf("\033[31mpastevents.log does not exist\033[0m\n");
+            fprintf(stderr, RED_COLOR);
+            fprintf(stderr, "ERROR : pastevents.log does not exist\n");
+            fprintf(stderr, RESET_COLOR);
             return 2;
         }
 
@@ -133,7 +142,7 @@ int addEventToHistory(char * input) {
     return 0;
 }
 
-int getIndexInHistory(char **errorString, int fetchIndex, char ** command_details) {
+int getIndexInHistory(int fetchIndex, char ** command_details) {
     // We will open the log file and read the contents
     // and the fetchIndex will fetch the file at the
     // ith position in the reverse file
@@ -141,9 +150,11 @@ int getIndexInHistory(char **errorString, int fetchIndex, char ** command_detail
 
 
     // Open the log file
-    FILE *fp = fopen("/home/ujjwal-shake-her/M23_Code_Thingies/OSN/A1/pasteventsHandler/pastevents.log", "r");
+    FILE *fp = fopen(PAST_EVENTS_PATH, "r");
     if (fp == NULL) {
-        errorHandler("\033[31mpastevents.log does not exist\033[0m", errorString);
+        fprintf(stderr, RED_COLOR);
+        fprintf(stderr, "ERROR : pastevents.log does not exist\n");
+        fprintf(stderr, RESET_COLOR);
         return 1;
     }
 
@@ -177,7 +188,9 @@ int getIndexInHistory(char **errorString, int fetchIndex, char ** command_detail
 
     // Check if the fetchIndex is valid
     if ((fetchIndex >= numLines) || (fetchIndex < 0)) {
-        errorHandler("\033[31mInvalid index\033[0m", errorString);
+        fprintf(stderr, RED_COLOR);
+        fprintf(stderr, "ERROR : Invalid index\n");
+        fprintf(stderr, RESET_COLOR);
         return 1;
     }
 
@@ -192,10 +205,11 @@ int replacePastEventCommands(char *input) {
     int modified = 0; // Flag to check if any replacement was made
 
     // Open the log file
-    FILE *fp = fopen("/home/ujjwal-shake-her/M23_Code_Thingies/OSN/A1/pasteventsHandler/pastevents.log", "r");
+    FILE *fp = fopen(PAST_EVENTS_PATH, "r");
     if (fp == NULL) {
-        // errorHandler("", errorString);
-        printf("\033[31mpastevents.log does not exist\033[0m\n");
+        fprintf(stderr, RED_COLOR);
+        fprintf(stderr, "ERROR : pastevents.log does not exist\n");
+        fprintf(stderr, RESET_COLOR);
         return 2;
     }
 

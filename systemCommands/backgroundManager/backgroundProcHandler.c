@@ -92,3 +92,59 @@ void add_background_process(pid_t pid, const char *command) {
         printf("Reached maximum number of background processes.\n");
     }
 }
+
+int is_background_process(pid_t pid) {
+    for (int i = 0; i < numBackgroundProcesses; i++) {
+        if (backgroundProcesses[i].pid == pid) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int execute_background_process(pid_t shell_pid, struct CommandArgs ca, char * commandName, int num_args, char* command_details) {
+    pid_t pid = fork();
+
+    if (pid < 0) {
+        perror("fork");
+    } else if (pid == 0) {
+        // Set the process group leader
+        setpgid(0, 0); 
+
+        // Open /dev/null for reading and writing
+        int null_fd = open("/dev/null", O_RDWR);
+
+        // Check if the file descriptor is valid
+        if (null_fd == -1) {
+            // errorHandler("\033[31mFailed to open /dev/null\033[0m", &errorString);
+            perror("\033[31mFailed to open /dev/null\033[0m");
+            exit(EXIT_FAILURE);
+        }
+
+        // Redirect standard input, output, and error to /dev/null
+        if (ca.input_fd != -1)
+            dup2(ca.input_fd, STDIN_FILENO);
+        else
+            dup2(null_fd, STDIN_FILENO);
+
+        if (ca.output_fd != -1)
+            dup2(ca.output_fd, STDOUT_FILENO);
+        else
+            dup2(null_fd, STDOUT_FILENO);
+
+        dup2(null_fd, STDERR_FILENO);
+
+        // Close the /dev/null file descriptor
+        close(null_fd);
+
+        // Call execvp
+        execvp(commandName, ca.command_args);
+
+        printf("\033[31mERROR: '%s' is not a valid command\033[0m\n", commandName);
+
+        exit(EXIT_FAILURE);
+    } else { // Parent process block
+        add_background_process(pid, command_details);
+        printf("[%d]\n", pid); // Print the PID of the background process
+    }
+}

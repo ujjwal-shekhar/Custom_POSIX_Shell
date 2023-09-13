@@ -1,13 +1,5 @@
 #include "../headers.h"
 
-/*
-struct PipedCommandDetails {
-    char * command_details;
-    struct CommandArgs * ca;
-    int num_piped_commands;
-} PipedCommandDetails;
-*/
-
 int splitByPipe(char *command_details, char **command_details_split) {
     int num_commands = 0;
     for (char *token = strtok(command_details, "|"); 

@@ -4,11 +4,9 @@ int compare(const void *a, const void *b) {
     return strcmp(*(const char **)a, *(const char **)b);
 }
 
-int peek(char ** command_args, char ** errorString, char starting_directory[], char ** previous_directory) {
+int peek(char ** command_args, char starting_directory[], char ** previous_directory) {
     int listFlag = 0, allFlag = 0, pathFound = 0;
     char * path = NULL;
-    // printf("Flags : %d %d, Pathfound : %d\n", listFlag, allFlag, pathFound);
-
 
     for (int i=1; i<4; i++) {
         if (command_args[i] == NULL) break;
@@ -24,14 +22,17 @@ int peek(char ** command_args, char ** errorString, char starting_directory[], c
 
         if (isWhitepace) break;
 
-        struct FlagInfo fi = flagHandler(command_args[i], errorString, starting_directory, "-");
-        struct PathInfo pi = pathHandler(command_args[i], errorString, starting_directory, previous_directory);
+
+        struct FlagInfo fi = flagHandler(command_args[i], starting_directory, "-");
+        struct PathInfo pi = pathHandler(command_args[i], starting_directory, previous_directory);
 
         // Check if this is a flag
         if (fi.isFlag) {
             // The path must not come before the flag
             if (pathFound) {
-                errorHandler("\033[31mSyntax Error\nCorrect Usage : peek <flags> <path/name>\033[0m", errorString);
+                fprintf(stderr, RED_COLOR);
+                fprintf(stderr, "SYNTAX ERROR : Correct Usage : peek <flags> <path/name>\n");
+                fprintf(stderr, RESET_COLOR);
                 return 1;
             }
 
@@ -39,8 +40,10 @@ int peek(char ** command_args, char ** errorString, char starting_directory[], c
             for (int j=0; j<strlen(fi.flags); j++) {
                 // Detect invalid flags
                 if (fi.flags[j] != 'l' && fi.flags[j] != 'a') {
-                    errorHandler("\033[31mInvalid flag\033[0m", errorString);
-                    return 1;
+                    fprintf(stderr, RED_COLOR);
+                    fprintf(stderr, "SYNTAX ERROR : Invalid flag(s)\n");
+                    fprintf(stderr, RESET_COLOR);
+                return 1;
                 }
 
                 listFlag |= (fi.flags[j] == 'l');
@@ -51,8 +54,9 @@ int peek(char ** command_args, char ** errorString, char starting_directory[], c
             pathFound = 1;
         } else {
             // printf("Flags : %d %d, Pathfound : %d at %d\n", listFlag, allFlag, pathFound, i);
-
-            errorHandler("\033[31mInvalid argument1\033[0m", errorString);
+            fprintf(stderr, RED_COLOR);
+            fprintf(stderr, "SYNTAX ERROR : Invalid argument\n");
+            fprintf(stderr, RESET_COLOR);
             return 1;
         }
     }
@@ -72,7 +76,9 @@ int peek(char ** command_args, char ** errorString, char starting_directory[], c
         int n = scandir(path, &entry, NULL, alphasort);
 
         if (n < 0) {
-            errorHandler("\033[31mDirectory not found\033[0m", errorString);
+            fprintf(stderr, RED_COLOR);
+            fprintf(stderr, "ERROR : Directory not found\n");
+            fprintf(stderr, RESET_COLOR);
             return 1;
         }
         if (listFlag) printf("total %d\n", n); // TODO : Fix this number
@@ -162,7 +168,10 @@ int peek(char ** command_args, char ** errorString, char starting_directory[], c
         }
         printf("\n");
     } else {
-
+        fprintf(stderr, RED_COLOR);
+        fprintf(stderr, "ERROR : Directory not found\n");
+        fprintf(stderr, RESET_COLOR);
+        return 1;
     }
 
     return 0;

@@ -8,8 +8,7 @@
 // around 40 : 60 (me : Copilot) 
 
 // Returns 0 : if successful, 1 : if failed
-int warp(char ** command_args, char ** errorString, char starting_directory[], char ** previous_directory) {
-
+int warp(char ** command_args, char starting_directory[], char ** previous_directory) {
     if (command_args[1] == NULL) {
         command_args[1] = "~";
         command_args[2] = NULL;
@@ -20,7 +19,6 @@ int warp(char ** command_args, char ** errorString, char starting_directory[], c
         
         // Make the cwd as previous_directory
         strcpy(*previous_directory, cwd);
-
     }
 
     // Iterate over all command_args
@@ -38,11 +36,15 @@ int warp(char ** command_args, char ** errorString, char starting_directory[], c
             if (access(new_directory, F_OK) == 0) {
                 // Change the directory
                 if (chdir(new_directory) != 0) {
-                    errorHandler("\033[31mThere was some issue when using chdir\033[0m", errorString);
+                    fprintf(stderr, RED_COLOR);
+                    fprintf(stderr, "ERROR : There was some issue when using chdir\n");
+                    fprintf(stderr, RESET_COLOR);
                     return 1;
                 }
             } else {
-                errorHandler("\033[31mThe path is not valid\033[0m", errorString);
+                fprintf(stderr, RED_COLOR);
+                fprintf(stderr, "ERROR : Invalid path\n");
+                fprintf(stderr, RESET_COLOR);
                 return 1;
             }
 
@@ -55,13 +57,17 @@ int warp(char ** command_args, char ** errorString, char starting_directory[], c
         if (strcmp(command_args[i], "-") == 0) {
             // Check if the environment variable is set
             if (strlen(*previous_directory) == 0) {
-                errorHandler("\033[31mOLDPWD is not set\033[0m", errorString);
+                fprintf(stderr, RED_COLOR);
+                fprintf(stderr, "ERROR : Previous working directory is not set\n");
+                fprintf(stderr, RESET_COLOR);
                 return 1;
             }
 
             // Change the directory
             if (chdir(*previous_directory) != 0) {
-                errorHandler("\033[31mThere was some issue when using chdir\033[0m", errorString);
+                fprintf(stderr, RED_COLOR);
+                fprintf(stderr, "ERROR : There was some issue when using chdir\n");
+                fprintf(stderr, RESET_COLOR);
                 return 1;
             }
 
@@ -74,11 +80,15 @@ int warp(char ** command_args, char ** errorString, char starting_directory[], c
             if (access(command_args[i], F_OK) == 0) {
                 // Change the directory
                 if (chdir(command_args[i]) != 0) {
-                    errorHandler("\033[31mThere was some issue when using chdir\033[0m", errorString);
+                    fprintf(stderr, RED_COLOR);
+                    fprintf(stderr, "ERROR : There was some issue when using chdir\n");
+                    fprintf(stderr, RESET_COLOR);
                     return 1;
                 }
             } else {
-                errorHandler("\033[31mThe path is not valid\033[0m", errorString);
+                fprintf(stderr, RED_COLOR);
+                fprintf(stderr, "ERROR : Invalid path\n");
+                fprintf(stderr, RESET_COLOR);
                 return 1;
             }
         } else {
@@ -97,11 +107,15 @@ int warp(char ** command_args, char ** errorString, char starting_directory[], c
             if (access(new_directory, F_OK) == 0) {
                 // Change the directory
                 if (chdir(new_directory) != 0) {
-                    errorHandler("\033[31mThere was some issue when using chdir\033[0m", errorString);
+                    fprintf(stderr, RED_COLOR);
+                    fprintf(stderr, "ERROR : There was some issue when using chdir\n");
+                    fprintf(stderr, RESET_COLOR);
                     return 1;
                 }
             } else {
-                errorHandler("\033[31mThe path is not valid\033[0m", errorString);
+                fprintf(stderr, RED_COLOR);
+                fprintf(stderr, "ERROR : There was some issue when using chdir\n");
+                fprintf(stderr, RESET_COLOR);
                 return 1;
             }
         }        

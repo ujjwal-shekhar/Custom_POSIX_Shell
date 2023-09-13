@@ -6,6 +6,6 @@ struct PathInfo {
     char * path;
 } pathInfo;
 
-struct PathInfo pathHandler(char * command_arg, char ** errorString, char starting_directory[], char ** previous_directory);
+struct PathInfo pathHandler(char * command_arg, char starting_directory[], char ** previous_directory);
 
 #endif

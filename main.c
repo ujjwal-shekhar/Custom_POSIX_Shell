@@ -13,6 +13,18 @@ void sigchld_handler(int signo) {
     }
 }
 
+void signal_setup() {
+    struct sigaction sa;
+    sa.sa_handler = sigchld_handler;
+    sa.sa_flags = SA_RESTART;
+    sigemptyset(&sa.sa_mask);
+    if (sigaction(SIGCHLD, &sa, NULL) == -1) {
+        fprintf(stderr, RED_COLOR);
+        fprintf(stderr, MEMORY_ALLOC_ERROR);
+        fprintf(stderr, RESET_COLOR);
+    }
+}
+
 int main()
 {
     // Get the working directory of starting directory
@@ -32,16 +44,14 @@ int main()
     // Store the past command details
     char * prevCommDetails = (char *) malloc(4096 * sizeof(char));
     if (prevCommDetails == NULL) {
-        printf("\033[31mFailed to allocate memory\033[0m\n");
+        fprintf(stderr, RED_COLOR);
+        fprintf(stderr, MEMORY_ALLOC_ERROR);
+        fprintf(stderr, RESET_COLOR);
         exit(EXIT_FAILURE);
     }
     prevCommDetails[0] = '\0';
 
-    struct sigaction sa;
-    sa.sa_handler = sigchld_handler;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = SA_RESTART | SA_NOCLDSTOP;
-    sigaction(SIGCHLD, &sa, NULL);
+    signal_setup();    
 
     // Keep accepting commands
     while (1)
@@ -64,7 +74,7 @@ int main()
         int dontAddToHistory = 0;
         int errorOccured = 0;
 
-        struct CommandList cl = executeCommands(input);
+        struct CommandList cl = tokenizeInput(input);
         int numCommands = cl.num_commands;
         struct Command *commands = cl.commands;
 
@@ -97,121 +107,19 @@ int main()
             //     printf("\n");
             // }
 
+            struct CommandArgs ca = pcd.ca[0];
+            ca.command_args[ca.num_args] = NULL;
+            char* commandName = ca.command_args[0];
+            int num_args = ca.num_args;    
+
+            pid_t shell_pid = getpid();
+
+            // TODO: fprintf to the stderr
+
             if (isBackground) {
-                // perror("Background processes not supported");
-                int pipe_fd[pcd.num_piped_commands-1][2];
-                if (pcd.num_piped_commands == 1) {
-                    // No pipes, execute the command directly
-                    struct CommandArgs ca = pcd.ca[0];
-                    ca.command_args[ca.num_args] = NULL;
-                    char* commandName = ca.command_args[0];
-                    int num_args = ca.num_args;
-
-                    printf("backgnopipes\n");
-                    pid_t pid = fork();
-                
-                    if (pid < 0) {
-                        perror("fork");
-                    } else if (pid == 0) {
-                        // Make the last entry of command_args as NULL
-                        command_args[num_args] = NULL;
-
-                        // Open /dev/null for reading and writing
-                        int null_fd = open("/dev/null", O_RDWR);
-
-                        // Check if the file descriptor is valid
-                        if (null_fd == -1) {
-                            errorHandler("\033[31mFailed to open /dev/null\033[0m", &errorString);
-                        }
-
-                        // Redirect standard input, output, and error to /dev/null
-                        if (ca.input_fd != -1)
-                            dup2(ca.input_fd, STDIN_FILENO);
-                        else
-                            dup2(null_fd, STDIN_FILENO);
-
-                        if (ca.output_fd != -1)
-                            dup2(ca.output_fd, STDOUT_FILENO);
-                        else
-                            dup2(null_fd, STDOUT_FILENO);
-
-                        dup2(null_fd, STDERR_FILENO);
-
-                        // Close the /dev/null file descriptor
-                        close(null_fd);
-
-                        // Call execvp
-                        erroneousFlag = execvp(commandName, ca.command_args);
-
-                        if (erroneousFlag == -1) {
-                            printf("\033[31mERROR: '%s' is not a valid command\033[0m\n", commandName);
-                            erroneousFlag = 1;
-                            exit(EXIT_FAILURE);
-                        }
-                        
-                    } else { // Parent process block
-                        add_background_process(pid, command_details);
-                        printf("[%d]\n", pid); // Print the PID of the background process
-                    }
-                } else { // Most of this code is purely ChatGPT-ed
-                    for (int job=0; job<pcd.num_piped_commands; job++) {
-                        struct CommandArgs ca = pcd.ca[job];
-                        ca.command_args[ca.num_args] = NULL;
-                        char* commandName = ca.command_args[0];
-
-                        if (job < pcd.num_piped_commands - 1)
-                            pipe(pipe_fd[job]);
-
-                        pid_t pid = fork();
-
-                        if (pid < 0) {
-                            perror("fork");
-                        } else if (pid == 0) {
-                            if (job != 0) {
-                                dup2(pipe_fd[job-1][0], 0);
-                                // close(pipe_fd[job-1][1]);
-                            } else if (ca.input_fd != -1) {
-                                dup2(ca.input_fd, 0);
-                            }
-
-                            if (job != pcd.num_piped_commands - 1) {
-                                dup2(pipe_fd[job][1], 1);
-                                // close(pipe_fd[job][0]);
-                            } else if (ca.output_fd != -1) {
-                                dup2(ca.output_fd, 1);
-                            }
-
-
-                            execvp(commandName, ca.command_args);
-
-                            exit(EXIT_FAILURE);
-                        } 
-                        else{
-                            if (job != 0) {
-                                close(pipe_fd[job-1][0]);
-                            } else if (pcd.ca->input_fd != -1 && pcd.ca->input_fd != 0) {
-                                close(pcd.ca->input_fd);
-                            }
-                            if (job != pcd.num_piped_commands - 1) {
-                                close(pipe_fd[job][1]);
-                            } else if (pcd.ca->output_fd != -1 && pcd.ca->output_fd != 1) {
-                                close(pcd.ca->output_fd);
-                            }
-                            wait(NULL);
-                        }
-                    }
-                
-                }
-
+                execute_background_process(shell_pid, ca, commandName, num_args, command_details);
             } else {
-                int pipe_fd[pcd.num_piped_commands-1][2];
                 if (pcd.num_piped_commands == 1) {
-                    // No pipes, execute the command directly
-                    struct CommandArgs ca = pcd.ca[0];
-                    ca.command_args[ca.num_args] = NULL;
-                    char* commandName = ca.command_args[0];
-                    int num_args = ca.num_args;
-
                     if (checkUserCommand(commandName)) {
                         erroneousFlag = executeCommand(commandName, num_args, ca.command_args, &errorString, starting_directory, &previous_directory, &prevCommDetails);
                     
@@ -225,8 +133,10 @@ int main()
                     
                         if (pid < 0) {
                         perror("fork");
-                        } else if (pid == 0) {
-                            // Child process code
+                        } else if (pid == 0) { // Child process code
+                            // Set the process group leader
+                            setpgid(0, 0);
+
                             // Make the last entry of command_args as NULL
                             ca.command_args[num_args] = NULL;
 
@@ -235,9 +145,8 @@ int main()
 
                             // Error handling
                             printf("\033[31mERROR : %s is not a valid command\033[0m\n", commandName);
-                            // printf("hi hcild\n");
-                            exit(EXIT_FAILURE);
-                            
+
+                            exit(EXIT_FAILURE);                            
                         } else {
                             time_t start = time(NULL);
                             int status;
@@ -254,7 +163,7 @@ int main()
                                 // Set the command Name in case the prompt might need it
                                 strcpy(prevCommandName, commandName);
 
-                                // Time taken to be reset next cycle or noot
+                                // Time taken to be reset next cycle or not
                                 resetTimeTaken = 0;
                             } else {
                                 perror("waitpid");
@@ -263,52 +172,7 @@ int main()
                         }
                     }                
                 } else { // Most of this code is purely ChatGPT-ed
-                    for (int job=0; job<pcd.num_piped_commands; job++) {
-
-                        if (job < pcd.num_piped_commands - 1)
-                            pipe(pipe_fd[job]);
-
-                        pid_t pid = fork();
-
-                        if (pid < 0) {
-                            perror("fork");
-                        } else if (pid == 0) {
-                            struct CommandArgs ca = pcd.ca[job];
-                            ca.command_args[ca.num_args] = NULL;
-                            char* commandName = ca.command_args[0];
-
-                            if (job != 0) {
-                                dup2(pipe_fd[job-1][0], 0);
-                                // close(pipe_fd[job-1][1]);
-                            } else if (ca.input_fd != -1) {
-                                dup2(ca.input_fd, 0);
-                            }
-
-                            if (job != pcd.num_piped_commands - 1) {
-                                dup2(pipe_fd[job][1], 1);
-                                // close(pipe_fd[job][0]);
-                            } else if (ca.output_fd != -1) {
-                                dup2(ca.output_fd, 1);
-                            }
-
-                            execvp(commandName, ca.command_args);
-
-                            exit(EXIT_FAILURE);
-                        } 
-                        else{
-                            if (job != 0) {
-                                close(pipe_fd[job-1][0]);
-                            } else if (pcd.ca->input_fd != -1 && pcd.ca->input_fd != 0) {
-                                close(pcd.ca->input_fd);
-                            }
-                            if (job != pcd.num_piped_commands - 1) {
-                                close(pipe_fd[job][1]);
-                            } else if (pcd.ca->output_fd != -1 && pcd.ca->output_fd != 1) {
-                                close(pcd.ca->output_fd);
-                            }
-                            wait(NULL);
-                        }
-                    }
+                    execute_foreground_process(shell_pid, pcd, commandName, num_args, command_details);
                 }
             }
         }
@@ -317,6 +181,6 @@ int main()
             addEventToHistory(rawInput);
         }
 
-         check_background_processes();
+        check_background_processes();
     }
 }

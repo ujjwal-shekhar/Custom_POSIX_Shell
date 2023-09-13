@@ -31,6 +31,7 @@
 #include "pasteventsHandler/pastevents.h"
 
 #include "systemCommands/backgroundManager/backgroundProcHandler.h"
+#include "systemCommands/foregroundManager/foregroundProcHandler.h"
 
 #include "utils/pathHandler.h"
 #include "utils/flagHandler.h"
@@ -43,6 +44,11 @@
 #include "redirPipeHandler/redirectionHandler.h"
 
 #include "iManHandler/iManHandler.h"
+
+struct Command {
+    char * command_details;
+    int printProcId;
+} command;
 
 struct CommandList {
     struct Command * commands;
@@ -58,6 +64,15 @@ struct ProcessDetails {
 
 #define MAX_BACKGROUND_PROCESSES 10
 
+#define RED_COLOR "\033[31m"
+#define GREEN_COLOR "\033[32m"
+#define BLUE_COLOR "\033[34m"
+#define RESET_COLOR "\033[0m"
+
+#define MEMORY_ALLOC_ERROR "Failed to allocate memory\n"
+
+// #define PAST_EVENTS_PATH "./pasteventsHandler/pastevents.log"
+#define PAST_EVENTS_PATH "/home/ujjwal-shake-her/M23_Code_Thingies/OSN/A1/pasteventsHandler/pastevents.log"
 // struct ProcessDetails backgroundProcesses[MAX_BACKGROUND_PROCESSES + 1];
 
 #endif

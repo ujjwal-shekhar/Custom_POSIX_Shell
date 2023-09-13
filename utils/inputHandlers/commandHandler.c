@@ -1,7 +1,7 @@
 #include "../../headers.h"
 
 // This was discussed with Anika Roy (2021113008)
-struct CommandList executeCommands(char *input) {
+struct CommandList tokenizeInput(char *input) {
     // Maintain a list of commands 
     struct Command commands[4096];
     int numCommands = 0;
