@@ -16,6 +16,7 @@
 #include <fcntl.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <termios.h>
 
 
 // #include "utils/customStructs.h"

@@ -47,6 +47,7 @@
 
 
 #include "../../iManHandler/iManHandler.h"
+#include "../../neonateHandler/neonate.h"
 
 
 int executeCommand(char* commandName, int num_args, char *command_args[4096], char starting_directory[], char ** previous_directory, char ** prevCommDetails);

@@ -25,6 +25,16 @@ int executeCommand(char* commandName, int num_args, char *command_args[], char s
         }
     }
 
+    // Check if neonate was entered
+    else if (strncmp(commandName, "neonate\0", 8) == 0) {
+        // Check if there were no more than 2 arguments
+        if (num_args > 3) {
+            return 1;
+        } else {
+            return neonate(command_args);
+        }
+    }
+
     // Check if iMan was entered
     else if (strncmp(commandName, "iMan\0", 5) == 0) {
         // Check if there were no more than 2 arguments

@@ -27,6 +27,7 @@
 #include "redirPipeHandler/redirectionHandler.h"
 
 #include "iManHandler/iManHandler.h"
+#include "neonateHandler/neonate.h"
 // USAGE OF CHATGPT
 // A lot of the signal handling came
 // from chatgpt
