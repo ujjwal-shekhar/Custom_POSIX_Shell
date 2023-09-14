@@ -176,7 +176,7 @@ int main()
 
             pipe_split(command_details, command_args, isBackground, starting_directory, &previous_directory, &pcd);
 
-            // Print the piped command details
+            // // Print the piped command details
             // printf("Piped Command Details\n");
             // printf("Number of piped commands : %d\n", pcd.num_piped_commands);
             // for (int i = 0; i < pcd.num_piped_commands; i++) {
@@ -216,6 +216,14 @@ int main()
                         if (pid < 0) {
                             perror("fork");
                         } else if (pid == 0) { // Child process code
+                            // Set the input and output to input_fd and output_fd
+                            if (ca.input_fd != -1) {
+                                dup2(ca.input_fd, 0);
+                            }
+                            if (ca.output_fd != -1) {
+                                dup2(ca.output_fd, 1);
+                            }
+
                             // Set the process group leader
                             setpgid(0, 0);
 
@@ -225,14 +233,27 @@ int main()
                             // Call execvp
                             execvp(commandName, ca.command_args);
 
+                            exit(EXIT_FAILURE);                            
                             // Error handling
                             printf("\033[31mERROR : %s is not a valid command\033[0m\n", commandName);
 
-                            exit(EXIT_FAILURE);                            
                         } else {
+                            // Close the input and output file descriptors
+                            if (ca.input_fd != 0) {
+                                close(ca.input_fd);
+                            }
+                            if (ca.output_fd != 1) {
+                                close(ca.output_fd);
+                            }
+
+                            // Maintain amount of time taken
                             time_t start = time(NULL);
                             int status;
                             if (waitpid(pid, &status, 0) > 0) {
+                                // Restore stdin and stdout
+                                dup2(STDIN_FILENO, 0);
+                                dup2(STDOUT_FILENO, 1);
+
                                 // Set error flag if EXITFAILURE
                                 if (WIFEXITED(status) && WEXITSTATUS(status) != 0) {
                                     errorOccured = 1;
