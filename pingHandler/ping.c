@@ -19,10 +19,12 @@ int ping(char ** command_args) {
     int signalNumberModulo = signalNumber % 32;
 
     if (kill(pid, signalNumberModulo) == -1) {
-        printf("\033[31mNo such process found\033[0m\n");
+        fprintf(stderr, RED_COLOR);
+        fprintf(stderr, "ERROR : No such process found with PID [%d]\n", pid);
+        fprintf(stderr, RESET_COLOR);
         return 1;
     } else {
-        printf("Signal %d sent to process with pid %d\n", signalNumber, pid);
+        printf("%sSignal %d sent to process with pid %d%s\n", GREEN_COLOR, signalNumber, pid, RESET_COLOR);
     }
 
     return 0;

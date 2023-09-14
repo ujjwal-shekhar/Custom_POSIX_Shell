@@ -16,17 +16,16 @@ void update_background_status(struct ProcessList *pl) {
         pid_t pid = waitpid(pl->backgroundProcesses[i].pid, &status, WNOHANG | WUNTRACED);
         if (pid == -1) {
             // printf("Error in waitpid\n");
-        } else if(pid ==0){
+        } else if(pid == 0){
+            // printf("Process %d is running\n", pl->backgroundProcesses[i].pid);
+            pl->backgroundProcesses[i].status = strdup("running");
             continue;
         } 
         else{
-            pl->backgroundProcesses[i].completed = 1;
+            // pl->backgroundProcesses[i].completed = 1;
             pl->backgroundProcesses[i].normallyExited = (
                 WIFEXITED(status) && !WEXITSTATUS(status)
             );
-
-            // print the pl->backgroundProcesses list
-            
 
             // Set the status of backgroundProcesses
             // Running / Stopped / Exited
@@ -39,9 +38,6 @@ void update_background_status(struct ProcessList *pl) {
             } else if (WIFSIGNALED(status)) {
                 // printf("Finished\n");
                 pl->backgroundProcesses[i].status = strdup("finished");
-            } else {
-                // printf("Running\n");
-                pl->backgroundProcesses[i].status = strdup("running");
             }
         }
     }
@@ -52,17 +48,15 @@ void check_background_processes(struct ProcessList *pl) {
     int completed_processes = 0;
 
     for (int i = 0; i < pl->numProcesses; i++) {
-        if (pl->backgroundProcesses[i].completed) {
-            completed_processes++;
-            if (strcmp(pl->backgroundProcesses[i].status, "finished") == 0) {
-                if (pl->backgroundProcesses[i].normallyExited) {
-                    printf("%s exited normally (%d)\n", pl->backgroundProcesses[i].commandName, pl->backgroundProcesses[i].pid);
-                } else {
-                    printf("%s exited abnormally (%d)\n", pl->backgroundProcesses[i].commandName, pl->backgroundProcesses[i].pid);
-                }
+        completed_processes++;
+        if (strcmp(pl->backgroundProcesses[i].status, "finished") == 0) {
+            if (pl->backgroundProcesses[i].normallyExited) {
+                printf("%s exited normally (%d)\n", pl->backgroundProcesses[i].commandName, pl->backgroundProcesses[i].pid);
+            } else {
+                printf("%s exited abnormally (%d)\n", pl->backgroundProcesses[i].commandName, pl->backgroundProcesses[i].pid);
             }
         }
-    }
+}
 
     // Clean up completed processes from the list
     int new_index = 0;  

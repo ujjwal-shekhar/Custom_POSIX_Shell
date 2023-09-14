@@ -71,9 +71,12 @@ void setup_processes_list() {
 
 // int sigchldReceived = 0;
 void sigchld_handler(int signo) {
-    if(signo==SIGCHLD){
+    if (signo == SIGCHLD){
         update_background_status(&globalProcessList);
-        // sigchldReceived = 1;
+    } else if (signo == SIGCONT) {
+        update_background_status(&globalProcessList);
+    } else if (signo == SIGSTOP) {
+        update_background_status(&globalProcessList);
     }
 }
 

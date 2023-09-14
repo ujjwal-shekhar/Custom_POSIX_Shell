@@ -35,6 +35,16 @@ int executeCommand(char* commandName, int num_args, char *command_args[], char s
         }
     }
 
+    // Check if bg was entered
+    else if (strncmp(commandName, "bg\0", 3) == 0) {
+        if (num_args != 2) {
+            return 1;
+        } else {
+            pid_t shell_pid = getpid();
+            return start_process_in_background(command_args, shell_pid);
+        }
+    }
+
     // Check if neonate was entered
     else if (strncmp(commandName, "neonate\0", 8) == 0) {
         // Check if there were no more than 2 arguments

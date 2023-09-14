@@ -14,5 +14,12 @@ int start_process_in_background(char ** command_args, pid_t shell_pid) {
         return 1;
     }
 
-    
+    // Send SIGCONT to the process
+    if (kill(target_pid, SIGCONT) == -1) {
+        fprintf(stderr, RED_COLOR);
+        fprintf(stderr, "ERROR : Failed to send SIGCONT to process with PID [%d]\n", target_pid);
+        fprintf(stderr, RESET_COLOR);
+    }
+
+    // 
 }
