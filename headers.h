@@ -17,7 +17,7 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 #include <termios.h>
-
+#include <errno.h>
 
 // #include "utils/customStructs.h"
 

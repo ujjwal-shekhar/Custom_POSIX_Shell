@@ -41,7 +41,22 @@ void update_background_status() {
             backgroundProcesses[i].normallyExited = (
                 WIFEXITED(status) && !WEXITSTATUS(status)
             );
-            // printf("backgroundProcesses[i].normallyExited: %d\n",backgroundProcesses[i].normallyExited);
+
+            // Set the status of backgroundProcesses
+            // Running / Stopped / Exited
+            if (WIFEXITED(status)) {
+                // printf("Exited\n");
+                backgroundProcesses[i].status = strdup("finished");
+            } else if (WIFSTOPPED(status)) {
+                // printf("Stopped\n");
+                backgroundProcesses[i].status = strdup("stopped");
+            } else if (WIFSIGNALED(status)) {
+                // printf("Finished\n");
+                backgroundProcesses[i].status = strdup("finished");
+            } else {
+                // printf("Running\n");
+                backgroundProcesses[i].status = strdup("running");
+            }
         }
     }
 }
@@ -51,39 +66,40 @@ void check_background_processes() {
     int completed_processes = 0;
 
     for (int i = 0; i < numBackgroundProcesses; i++) {
-        // printf("Checking %d\n", i);
-        // printf("The pid is %d\n", backgroundProcesses[i].pid);
-        // printf("The completed is %d\n", backgroundProcesses[i].completed);
-        // printf("The NORMALLY EXITED is %d\n", backgroundProcesses[i].normallyExited);
-
         if (backgroundProcesses[i].completed) {
-            // pid_t pid = waitpid(backgroundProcesses[i].pid, &status, WNOHANG);
-            // printf("The pid is %d\n", pid);
-            // if (pid == -1) {
-            //     printf("Error in waitpid\n");
-            // } else if (pid == backgroundProcesses[i].pid) {
-            //     backgroundProcesses[i].completed = 1;
-                // printf("[%d] Done\t%s\n", i + 1, backgroundProcesses[i].commandName);
-                completed_processes++;
-
-                if (backgroundProcesses[i].normallyExited) {
-                    printf("%s exited normally (%d)\n", backgroundProcesses[i].commandName, backgroundProcesses[i].pid);
-                } else {
-                    printf("%s exited abnormally (%d)\n", backgroundProcesses[i].commandName, backgroundProcesses[i].pid);
-                }
-            // }
+            completed_processes++;
+            if (backgroundProcesses[i].normallyExited) {
+                printf("%s exited normally (%d)\n", backgroundProcesses[i].commandName, backgroundProcesses[i].pid);
+            } else {
+                printf("%s exited abnormally (%d)\n", backgroundProcesses[i].commandName, backgroundProcesses[i].pid);
+            }
         }
+    }
+
+    printf("BG procs before cleanup : %d procs\n", numBackgroundProcesses);
+    for (int i = 0; i < numBackgroundProcesses; i++) {
+        printf("%d : ", backgroundProcesses[i].pid);
+        printf(" %s - ", backgroundProcesses[i].commandName);
+        printf("%s\n", backgroundProcesses[i].status);
     }
 
     // Clean up completed processes from the list
     int new_index = 0;  
     for (int i = 0; i < numBackgroundProcesses; i++) {
         if (!backgroundProcesses[i].completed) {
+        // if (strcmp(backgroundProcesses[i].status, "finished")) {
             backgroundProcesses[new_index] = backgroundProcesses[i];
             new_index++;
         }
     }
-    numBackgroundProcesses -= completed_processes;
+
+    numBackgroundProcesses = new_index;
+    printf("BG procs after cleanup : %d procs\n", numBackgroundProcesses);
+    for (int i = 0; i < numBackgroundProcesses; i++) {
+        printf("%d : ", backgroundProcesses[i].pid);
+        printf(" %s - ", backgroundProcesses[i].commandName);
+        printf("%s\n", backgroundProcesses[i].status);
+    }
 }
 
 void add_background_process(pid_t pid, const char *command) {

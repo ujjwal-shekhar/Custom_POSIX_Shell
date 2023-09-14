@@ -1,7 +1,7 @@
 #include "commandExecutor.h"
 
 int checkUserCommand(char * commandName) {
-    char * userCommandsList[] = {"warp\0", "peek\0", "pastevents\0", "proclore\0", "exit\0", "seek\0", "ping\0", "activities\0", "iMan\0", NULL};
+    char * userCommandsList[] = {"warp\0", "peek\0", "pastevents\0", "proclore\0", "exit\0", "seek\0", "ping\0", "activities\0", "iMan\0", "fg\0", "bg\0", NULL};
     
     // Check if the commandName is one of the the userCommandsList
     int isUserCommand = 0;
@@ -22,6 +22,16 @@ int executeCommand(char* commandName, int num_args, char *command_args[], char s
             return 1;
         } else {
             exit(EXIT_SUCCESS);
+        }
+    }
+
+    // Check if fg was entered
+    else if (strncmp(commandName, "fg\0", 3) == 0) {
+        if (num_args != 2) {
+            return 1;
+        } else {
+            pid_t shell_pid = getpid();
+            return send_process_to_foreground(command_args, shell_pid);
         }
     }
 

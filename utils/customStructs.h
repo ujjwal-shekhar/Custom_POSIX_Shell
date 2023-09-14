@@ -27,6 +27,7 @@ struct ProcessDetails {
     int completed; // bool
     int normallyExited; // -1 : not exited, 0 : abnormally, 1 : normally
     char *commandName;
+    char *status; // Running / Stopped / Finished
 };
 
 struct FlagInfo {

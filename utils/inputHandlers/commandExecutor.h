@@ -49,6 +49,8 @@
 #include "../../iManHandler/iManHandler.h"
 #include "../../neonateHandler/neonate.h"
 
+#include "../../fgbgHandler/fg.h"
+#include "../../fgbgHandler/bg.h"
 
 int executeCommand(char* commandName, int num_args, char *command_args[4096], char starting_directory[], char ** previous_directory, char ** prevCommDetails);
 int checkUserCommand(char * commandName);

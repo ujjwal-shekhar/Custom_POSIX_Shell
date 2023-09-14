@@ -15,12 +15,15 @@ state: running or stopped
 
 int activities(char ** command_args) {
     int numbg = get_num_bg_processes();
+
     struct ProcessDetails * bgprocs = get_background_processes();
 
     for (int i=0; i<numbg; i++) {
+        printf("safesafe %d\n", i);
         printf("%d : ", bgprocs[i].pid);
         printf(" %s - ", bgprocs[i].commandName);
-        printf("%s\n", ((bgprocs[i].completed) ? ("Stopped") : ("Running")));
+        // printf("%s\n", ((bgprocs[i].completed) ? ("Stopped") : ("Running")));
+        printf("%s\n", bgprocs[i].status);
     }
 
     return 0;
