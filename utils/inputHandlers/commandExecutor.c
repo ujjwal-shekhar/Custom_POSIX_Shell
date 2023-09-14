@@ -15,7 +15,7 @@ int checkUserCommand(char * commandName) {
     return isUserCommand;
 }
 
-int executeCommand(char* commandName, int num_args, char *command_args[], char starting_directory[], char ** previous_directory, char ** prevCommDetails) {
+int executeCommand(char* commandName, int num_args, char *command_args[], char starting_directory[], char ** previous_directory, char ** prevCommDetails, struct ProcessList *pl) {
     // Check if exit command was entered
     if (strcmp(commandName, "exit") == 0) {
         if (num_args > 1) {
@@ -71,7 +71,7 @@ int executeCommand(char* commandName, int num_args, char *command_args[], char s
         if (num_args > 1) {
             return 1;
         } else {
-            return activities(command_args);
+            return activities(command_args, pl);
         }
     }
 

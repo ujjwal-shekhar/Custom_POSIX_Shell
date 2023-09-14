@@ -77,4 +77,6 @@
 #define PAST_EVENTS_PATH "/home/ujjwal-shake-her/M23_Code_Thingies/OSN/A1/pasteventsHandler/pastevents.log"
 // struct ProcessDetails backgroundProcesses[MAX_BACKGROUND_PROCESSES + 1];
 
+
+
 #endif

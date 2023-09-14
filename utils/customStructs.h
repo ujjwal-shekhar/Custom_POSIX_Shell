@@ -30,6 +30,11 @@ struct ProcessDetails {
     char *status; // Running / Stopped / Finished
 };
 
+struct ProcessList {
+    struct ProcessDetails * backgroundProcesses;
+    int numProcesses;
+};
+
 struct FlagInfo {
     int isFlag;
     char * flags; // Basically removes the "-" and returns the string

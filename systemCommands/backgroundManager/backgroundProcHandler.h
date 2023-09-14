@@ -28,12 +28,12 @@ I was thinking of maintaining a list of structs for this, where each element wou
 */
 
 
-void update_background_status();
-void add_background_process(pid_t pid, const char *command);
-void check_background_processes();
+void update_background_status(struct ProcessList *pl);
+void add_background_process(pid_t pid, const char *command, struct ProcessList *pl);
+void check_background_processes(struct ProcessList *pl);
+
 int get_num_bg_processes();
-struct ProcessDetails * get_background_processes();
-int execute_background_process(pid_t shell_pid, struct CommandArgs ca, char* commandName, int num_args, char* command_details);
-// int numBackgroundProcesses = 0;
+int execute_background_process(pid_t shell_pid, struct CommandArgs ca, char * commandName, int num_args, char* command_details, struct ProcessList *pl);
+struct ProcessDetails *  get_background_processes();
 
 #endif // BACKGROUND_MANAGER_H

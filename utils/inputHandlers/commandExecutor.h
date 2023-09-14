@@ -52,7 +52,7 @@
 #include "../../fgbgHandler/fg.h"
 #include "../../fgbgHandler/bg.h"
 
-int executeCommand(char* commandName, int num_args, char *command_args[4096], char starting_directory[], char ** previous_directory, char ** prevCommDetails);
+int executeCommand(char* commandName, int num_args, char *command_args[], char starting_directory[], char ** previous_directory, char ** prevCommDetails, struct ProcessList *pl);
 int checkUserCommand(char * commandName);
 
 #endif

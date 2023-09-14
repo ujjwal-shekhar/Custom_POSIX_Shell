@@ -5,125 +5,92 @@
 // #include "utils/inputHandlers/commandHandler.h"
 // #include "utils/inputHandlers/commandArgsHandler.h"
 
-struct ProcessDetails backgroundProcesses[MAX_BACKGROUND_PROCESSES + 1];
-int numBackgroundProcesses = 0;
-
-struct ProcessDetails * get_background_processes() {   
-    return backgroundProcesses;
-}
-
-int get_num_bg_processes() {
-    return numBackgroundProcesses;
-}
-
-void update_background_status() {
+void update_background_status(struct ProcessList *pl) {
     int status;
-    
     // Dont delete anything here
     // This will be called from the main loop
     // by the signal handler
     // just update the completed and the status
     // without printing anything
-
-    for (int i = 0; i < numBackgroundProcesses; i++) {
-        // printf("Checking %d\n", i);
-        // printf("The pid is %d\n", backgroundProcesses[i].pid);
-        // printf("The completed is %d\n", backgroundProcesses[i].completed);
-        
-        pid_t pid = waitpid(backgroundProcesses[i].pid, &status, WNOHANG | WUNTRACED);
+    for (int i = 0; i < pl->numProcesses; i++) {  
+        pid_t pid = waitpid(pl->backgroundProcesses[i].pid, &status, WNOHANG | WUNTRACED);
         if (pid == -1) {
             // printf("Error in waitpid\n");
         } else if(pid ==0){
             continue;
         } 
         else{
-            backgroundProcesses[i].completed = 1;
-            backgroundProcesses[i].normallyExited = (
+            pl->backgroundProcesses[i].completed = 1;
+            pl->backgroundProcesses[i].normallyExited = (
                 WIFEXITED(status) && !WEXITSTATUS(status)
             );
+
+            // print the pl->backgroundProcesses list
+            
 
             // Set the status of backgroundProcesses
             // Running / Stopped / Exited
             if (WIFEXITED(status)) {
                 // printf("Exited\n");
-                backgroundProcesses[i].status = strdup("finished");
+                pl->backgroundProcesses[i].status = strdup("finished");
             } else if (WIFSTOPPED(status)) {
                 // printf("Stopped\n");
-                backgroundProcesses[i].status = strdup("stopped");
+                pl->backgroundProcesses[i].status = strdup("stopped");
             } else if (WIFSIGNALED(status)) {
                 // printf("Finished\n");
-                backgroundProcesses[i].status = strdup("finished");
+                pl->backgroundProcesses[i].status = strdup("finished");
             } else {
                 // printf("Running\n");
-                backgroundProcesses[i].status = strdup("running");
+                pl->backgroundProcesses[i].status = strdup("running");
             }
         }
     }
 }
 
-void check_background_processes() {
+void check_background_processes(struct ProcessList *pl) {
     int status;
     int completed_processes = 0;
 
-    for (int i = 0; i < numBackgroundProcesses; i++) {
-        if (backgroundProcesses[i].completed) {
+    for (int i = 0; i < pl->numProcesses; i++) {
+        if (pl->backgroundProcesses[i].completed) {
             completed_processes++;
-            if (backgroundProcesses[i].normallyExited) {
-                printf("%s exited normally (%d)\n", backgroundProcesses[i].commandName, backgroundProcesses[i].pid);
-            } else {
-                printf("%s exited abnormally (%d)\n", backgroundProcesses[i].commandName, backgroundProcesses[i].pid);
+            if (strcmp(pl->backgroundProcesses[i].status, "finished") == 0) {
+                if (pl->backgroundProcesses[i].normallyExited) {
+                    printf("%s exited normally (%d)\n", pl->backgroundProcesses[i].commandName, pl->backgroundProcesses[i].pid);
+                } else {
+                    printf("%s exited abnormally (%d)\n", pl->backgroundProcesses[i].commandName, pl->backgroundProcesses[i].pid);
+                }
             }
         }
-    }
-
-    printf("BG procs before cleanup : %d procs\n", numBackgroundProcesses);
-    for (int i = 0; i < numBackgroundProcesses; i++) {
-        printf("%d : ", backgroundProcesses[i].pid);
-        printf(" %s - ", backgroundProcesses[i].commandName);
-        printf("%s\n", backgroundProcesses[i].status);
     }
 
     // Clean up completed processes from the list
     int new_index = 0;  
-    for (int i = 0; i < numBackgroundProcesses; i++) {
-        if (!backgroundProcesses[i].completed) {
-        // if (strcmp(backgroundProcesses[i].status, "finished")) {
-            backgroundProcesses[new_index] = backgroundProcesses[i];
+    for (int i = 0; i < pl->numProcesses; i++) {
+        if (strcmp(pl->backgroundProcesses[i].status, "finished")) {
+            pl->backgroundProcesses[new_index] = pl->backgroundProcesses[i];
             new_index++;
         }
     }
 
-    numBackgroundProcesses = new_index;
-    printf("BG procs after cleanup : %d procs\n", numBackgroundProcesses);
-    for (int i = 0; i < numBackgroundProcesses; i++) {
-        printf("%d : ", backgroundProcesses[i].pid);
-        printf(" %s - ", backgroundProcesses[i].commandName);
-        printf("%s\n", backgroundProcesses[i].status);
-    }
+    pl->numProcesses = new_index;
 }
 
-void add_background_process(pid_t pid, const char *command) {
-    if (numBackgroundProcesses < MAX_BACKGROUND_PROCESSES) {
-        backgroundProcesses[numBackgroundProcesses].pid = pid;
-        backgroundProcesses[numBackgroundProcesses].completed = 0;
-        backgroundProcesses[numBackgroundProcesses].normallyExited = 0;
-        backgroundProcesses[numBackgroundProcesses].commandName = strdup(command);
-        numBackgroundProcesses++;
+void add_background_process(pid_t pid, const char *command, struct ProcessList *pl) {
+    if (pl->numProcesses < MAX_BACKGROUND_PROCESSES) {
+        (pl->backgroundProcesses[pl->numProcesses]).pid = pid;
+        (pl->backgroundProcesses[pl->numProcesses]).completed = 0;
+        (pl->backgroundProcesses[pl->numProcesses]).normallyExited = 0;
+        // (pl->backgroundProcesses[pl->numProcesses]).commandName = strdup(command);
+        strcpy((pl->backgroundProcesses[pl->numProcesses]).commandName, command);
+        strcpy((pl->backgroundProcesses[pl->numProcesses]).status, "running");
+        pl->numProcesses++;
     } else {
         printf("Reached maximum number of background processes.\n");
     }
 }
 
-int is_background_process(pid_t pid) {
-    for (int i = 0; i < numBackgroundProcesses; i++) {
-        if (backgroundProcesses[i].pid == pid) {
-            return 1;
-        }
-    }
-    return 0;
-}
-
-int execute_background_process(pid_t shell_pid, struct CommandArgs ca, char * commandName, int num_args, char* command_details) {
+int execute_background_process(pid_t shell_pid, struct CommandArgs ca, char * commandName, int num_args, char* command_details, struct ProcessList *pl) {
     pid_t pid = fork();
 
     if (pid < 0) {
@@ -165,7 +132,7 @@ int execute_background_process(pid_t shell_pid, struct CommandArgs ca, char * co
 
         exit(EXIT_FAILURE);
     } else { // Parent process block
-        add_background_process(pid, command_details);
+        add_background_process(pid, command_details, pl);
         printf("[%d]\n", pid); // Print the PID of the background process
     }
 

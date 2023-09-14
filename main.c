@@ -36,10 +36,43 @@
 // from chatgpt
 // and this https://www.gnu.org/software/libc/manual/html_node/Process-Completion.html
 
+struct ProcessList globalProcessList;
+
+void setup_processes_list() {
+    // Initialize the global ProcessList variable
+    globalProcessList.numProcesses = 0;
+    globalProcessList.backgroundProcesses = (struct ProcessDetails *) malloc(sizeof(struct ProcessDetails) * MAX_BACKGROUND_PROCESSES);
+    if (globalProcessList.backgroundProcesses == NULL) {
+        fprintf(stderr, RED_COLOR);
+        fprintf(stderr, MEMORY_ALLOC_ERROR);
+        fprintf(stderr, RESET_COLOR);
+        exit(EXIT_FAILURE);
+    }
+
+    // Malloc for every background Process
+    for (int i = 0; i < MAX_BACKGROUND_PROCESSES; i++) {
+        globalProcessList.backgroundProcesses[i].commandName = (char *) malloc(sizeof(char) * 128);
+        if (globalProcessList.backgroundProcesses[i].commandName  == NULL) {
+            fprintf(stderr, RED_COLOR);
+            fprintf(stderr, MEMORY_ALLOC_ERROR);
+            fprintf(stderr, RESET_COLOR);
+            exit(EXIT_FAILURE);
+        }
+
+        globalProcessList.backgroundProcesses[i].status = (char *) malloc(sizeof(char) * 128);
+        if (globalProcessList.backgroundProcesses[i].status  == NULL) {
+            fprintf(stderr, RED_COLOR);
+            fprintf(stderr, MEMORY_ALLOC_ERROR);
+            fprintf(stderr, RESET_COLOR);
+            exit(EXIT_FAILURE);
+        }
+    }
+}
+
 // int sigchldReceived = 0;
 void sigchld_handler(int signo) {
     if(signo==SIGCHLD){
-        update_background_status();
+        update_background_status(&globalProcessList);
         // sigchldReceived = 1;
     }
 }
@@ -82,7 +115,11 @@ int main()
     }
     prevCommDetails[0] = '\0';
 
+    // Setup the signal handlers
     signal_setup();    
+    
+    // Setup the processList
+    setup_processes_list();
 
     // Keep accepting commands
     while (1)
@@ -159,11 +196,11 @@ int main()
             // TODO: fprintf to the stderr
 
             if (isBackground) {
-                execute_background_process(shell_pid, ca, commandName, num_args, command_details);
+                execute_background_process(shell_pid, ca, commandName, num_args, command_details, &globalProcessList);
             } else {
                 if (pcd.num_piped_commands == 1) {
                     if (checkUserCommand(commandName)) {
-                        erroneousFlag = executeCommand(commandName, num_args, ca.command_args, starting_directory, &previous_directory, &prevCommDetails);
+                        erroneousFlag = executeCommand(commandName, num_args, ca.command_args, starting_directory, &previous_directory, &prevCommDetails, &globalProcessList);
                     
                         if (erroneousFlag == 2) {
                             dontAddToHistory = 1;
@@ -223,6 +260,6 @@ int main()
             addEventToHistory(rawInput);
         }
 
-        check_background_processes();
+        check_background_processes(&globalProcessList);
     }
 }
