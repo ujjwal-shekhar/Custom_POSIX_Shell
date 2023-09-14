@@ -89,10 +89,9 @@ int main()
             char *command_details = commands[j].command_details;
             char *command_args[4096];
 
-            char * errorString;
             struct PipedCommandDetails pcd;
 
-            pipe_split(command_details, command_args, isBackground, &errorString, starting_directory, &previous_directory, &pcd);
+            pipe_split(command_details, command_args, isBackground, starting_directory, &previous_directory, &pcd);
 
             // Print the piped command details
             // printf("Piped Command Details\n");
@@ -121,7 +120,7 @@ int main()
             } else {
                 if (pcd.num_piped_commands == 1) {
                     if (checkUserCommand(commandName)) {
-                        erroneousFlag = executeCommand(commandName, num_args, ca.command_args, &errorString, starting_directory, &previous_directory, &prevCommDetails);
+                        erroneousFlag = executeCommand(commandName, num_args, ca.command_args, starting_directory, &previous_directory, &prevCommDetails);
                     
                         if (erroneousFlag == 2) {
                             dontAddToHistory = 1;
@@ -132,7 +131,7 @@ int main()
                         pid_t pid = fork();
                     
                         if (pid < 0) {
-                        perror("fork");
+                            perror("fork");
                         } else if (pid == 0) { // Child process code
                             // Set the process group leader
                             setpgid(0, 0);

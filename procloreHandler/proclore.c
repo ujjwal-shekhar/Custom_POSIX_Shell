@@ -14,7 +14,7 @@
 // ChatGPT and https://stackoverflow.com/questions/41224738/how-to-get-the-executable-path-of-a-process-in-linux
 // and https://man7.org/linux/man-pages/man5/proc.5.html 
 
-int proclore(char ** command_args, char ** errorString, char starting_directory[], char ** previous_directory) {
+int proclore(char **command_args, char starting_directory[], char **previous_directory) {
     int pid;
     // Check if the command_args[1] is NULL
     if (command_args[1] == NULL) {
@@ -51,11 +51,11 @@ int proclore(char ** command_args, char ** errorString, char starting_directory[
     char processStatus;
     int processGroup;
     unsigned long vmSize;
+
     sscanf(statBuffer, "%*d %*s %c %d", &processStatus, &processGroup);
 
     // Read and parse the statm file
-    unsigned long vmRSS;
-    if (fscanf(statmFile, "%lu", &vmRSS) != 1) {
+    if (fscanf(statmFile, "%lu", &vmSize) != 1) {
         perror("Error reading statm file");
         exit(EXIT_FAILURE);
     }
@@ -83,10 +83,10 @@ int proclore(char ** command_args, char ** errorString, char starting_directory[
 
     printf("Process Group: %d\n", processGroup);
     printf("Virtual Memory Size: %lu\n", vmSize);
-    // printf("Virtual Memory Resident Set Size: %lu\n", vmRSS);
     printf("Executable Path: %s\n", realPath);
 
     fclose(statFile);
     fclose(statmFile);
-}
 
+    return 0;
+}

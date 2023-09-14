@@ -6,6 +6,6 @@ struct FlagInfo {
     char * flags; // Basically removes the "-" and returns the string
 } flagInfo;
 
-struct FlagInfo flagHandler(char * command_args, char starting_directory[], const char * prefix);
+int flagHandler(char *command_arg, char starting_directory[], const char *prefix, struct FlagInfo *fi);
 
 #endif

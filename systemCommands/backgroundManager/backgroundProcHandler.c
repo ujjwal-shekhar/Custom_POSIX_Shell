@@ -147,4 +147,6 @@ int execute_background_process(pid_t shell_pid, struct CommandArgs ca, char * co
         add_background_process(pid, command_details);
         printf("[%d]\n", pid); // Print the PID of the background process
     }
+
+    return 0;
 }

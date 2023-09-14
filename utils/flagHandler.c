@@ -1,16 +1,18 @@
 #include "../headers.h"
 
-struct FlagInfo flagHandler(char * command_arg, char starting_directory[], const char * prefix) {
+#include "../headers.h"
+
+// Modify the flagHandler function to return an integer value
+int flagHandler(char *command_arg, char starting_directory[], const char *prefix, struct FlagInfo *fi) {
     // Check if the command has the prefix
     if (command_arg[0] != '-' || command_arg[1] == '\0') {
-        struct FlagInfo fi;
-        fi.isFlag = 0;
-        fi.flags = NULL;
-        return fi;
+        fi->isFlag = 0;
+        fi->flags = NULL;
+        return 0; // No error
     }
 
     // Remove the prefix
-    char * temp = (char *) malloc(sizeof(char) * 4096);
+    char *temp = (char *)malloc(sizeof(char) * 4096);
     if (temp == NULL) {
         fprintf(stderr, RED_COLOR);
         fprintf(stderr, MEMORY_ALLOC_ERROR);
@@ -32,27 +34,24 @@ struct FlagInfo flagHandler(char * command_arg, char starting_directory[], const
     }
 
     if (notWhiteSpace == 0) {
-        struct FlagInfo fi;
-        fi.isFlag = 0;
-        fi.flags = NULL;
-        free(temp); // Free memory allocated for temp
-        return fi;
+        fi->isFlag = 0;
+        fi->flags = NULL;
+        return 0; // No error
     }
 
-    struct FlagInfo fi;
-    fi.isFlag = 1;
-    fi.flags = (char *) malloc(sizeof(char) * 4096);
-    if (fi.flags == NULL) {
+    fi->isFlag = 1;
+    fi->flags = (char *)malloc(sizeof(char) * 4096);
+    if (fi->flags == NULL) {
         fprintf(stderr, RED_COLOR);
         fprintf(stderr, MEMORY_ALLOC_ERROR);
         fprintf(stderr, RESET_COLOR);
         exit(EXIT_FAILURE);
     }
-    fi.flags[0] = '\0';
-    strcpy(fi.flags, command_arg);
+    fi->flags[0] = '\0';
+    strcpy(fi->flags, command_arg);
 
     // Add the prefix again
-    temp = (char *) malloc(sizeof(char) * 4096);
+    temp = (char *)malloc(sizeof(char) * 4096);
     if (temp == NULL) {
         fprintf(stderr, RED_COLOR);
         fprintf(stderr, MEMORY_ALLOC_ERROR);
@@ -64,5 +63,5 @@ struct FlagInfo flagHandler(char * command_arg, char starting_directory[], const
     strcpy(command_arg, temp);
     free(temp);
 
-    return fi;
+    return 0; // No error
 }

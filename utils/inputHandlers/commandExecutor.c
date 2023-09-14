@@ -15,7 +15,7 @@ int checkUserCommand(char * commandName) {
     return isUserCommand;
 }
 
-int executeCommand(char* commandName, int num_args, char *command_args[], char ** errorString, char starting_directory[], char ** previous_directory, char ** prevCommDetails) {
+int executeCommand(char* commandName, int num_args, char *command_args[], char starting_directory[], char ** previous_directory, char ** prevCommDetails) {
     // Check if exit command was entered
     if (strcmp(commandName, "exit") == 0) {
         if (num_args > 1) {
@@ -41,7 +41,7 @@ int executeCommand(char* commandName, int num_args, char *command_args[], char *
         if (num_args > 2) {
             return 1;
         } else {
-            return proclore(command_args, errorString, starting_directory, previous_directory);
+            return proclore(command_args, starting_directory, previous_directory);
         }
     }
 
@@ -69,7 +69,8 @@ int executeCommand(char* commandName, int num_args, char *command_args[], char *
     else if (strncmp(commandName, "warp\0", 5) == 0) {
         // Check if the first argument is empty
         if (command_args[1] == NULL) {
-            command_args[1] = ".";
+            // command_args[1] = ".";
+            strcpy(command_args[1], ".");
             command_args[2] = NULL;
         } 
         
@@ -83,7 +84,8 @@ int executeCommand(char* commandName, int num_args, char *command_args[], char *
         }
 
         if (isWhiteSpace) {
-            command_args[1] = ".";
+            // command_args[1] = ".";
+            strcpy(command_args[1], ".");
             command_args[2] = NULL;
         }
         return warp(command_args, starting_directory, previous_directory);
@@ -155,8 +157,9 @@ int executeCommand(char* commandName, int num_args, char *command_args[], char *
             }
 
             else {
-                printf("The second arg :%s:%d\n", command_args[1], num_args);
-                errorHandler("\033[31mWrong Syntax used\nCorrect Usage : pastevents <purge / execute index>\033[0m\n", errorString);
+                fprintf(stderr, RED_COLOR);
+                fprintf(stderr, "SYNTAX ERROR : Correct Usage : pastevents <purge / execute index>\n");
+                fprintf(stderr, RESET_COLOR);
                 return 1;
             }
         }
@@ -164,7 +167,9 @@ int executeCommand(char* commandName, int num_args, char *command_args[], char *
 
     else 
     {
-        printf("\033[31mERROR : '%s' is not a valid command\033[0m\n", command_args[0]);
+        fprintf(stderr, RED_COLOR);
+        fprintf(stderr, "SYNTAX ERROR : '%s' is not a valid command\n", command_args[0]);
+        fprintf(stderr, RESET_COLOR);
         return 0;
     }
 

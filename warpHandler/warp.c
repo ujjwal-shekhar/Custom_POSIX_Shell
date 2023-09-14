@@ -10,7 +10,8 @@
 // Returns 0 : if successful, 1 : if failed
 int warp(char ** command_args, char starting_directory[], char ** previous_directory) {
     if (command_args[1] == NULL) {
-        command_args[1] = "~";
+        // command_args[1] = "~";
+        strcpy(command_args[1], "~");
         command_args[2] = NULL;
     } else if (strcmp(command_args[1], "-")) {
         // get cwd
@@ -126,4 +127,6 @@ int warp(char ** command_args, char starting_directory[], char ** previous_direc
         printf("%s\n", current_directory);
         i++;
     }
+
+    return 0;
 }

@@ -46,6 +46,7 @@ int clearHistory() {
     }
     
     fclose(fp);
+    return 0;
 }
 
 int addEventToHistory(char * input) {

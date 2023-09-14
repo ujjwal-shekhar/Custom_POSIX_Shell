@@ -8,6 +8,6 @@ struct PipedCommandDetails {
 } pipedCommandDetails;
 
 int splitByPipe(char *command_details, char **command_details_split);
-int pipe_split(char *command_details, char ** command_args, int isBackground, char ** errorString, char starting_directory[], char ** previous_directory, struct PipedCommandDetails * pcd);
+int pipe_split(char *command_details, char ** command_args, int isBackground, char starting_directory[], char ** previous_directory, struct PipedCommandDetails * pcd);
 
 #endif

@@ -18,7 +18,7 @@ the code is 40% copilot and 60% me
 
 int numMatchingFiles = 0, numMatchingDirs = 0;
 
-int traverseDirectry(char * searchTerm, char * path, int dFlag, int fFlag, char ** directoryPath, char ** filePath) {
+int traverseDirectory(char * searchTerm, char * path, int dFlag, int fFlag, char ** directoryPath, char ** filePath) {
     // Open the directory
     DIR *dir = opendir(path);
     if (!dir) {
@@ -70,7 +70,7 @@ int traverseDirectry(char * searchTerm, char * path, int dFlag, int fFlag, char 
                 strcpy(childPath, path);
                 strcat(childPath, "/");
                 strcat(childPath, entry->d_name);
-                traverseDirectry(searchTerm, childPath, dFlag, fFlag, directoryPath, filePath);
+                traverseDirectory(searchTerm, childPath, dFlag, fFlag, directoryPath, filePath);
             }
         } else if (entry->d_type == DT_REG) {
             // printf("%s\n", entry->d_name);
@@ -97,6 +97,8 @@ int traverseDirectry(char * searchTerm, char * path, int dFlag, int fFlag, char 
     }
 
     closedir(dir);
+
+    return 0;
 }
 
 int seek(char ** command_args, char starting_directory[], char ** previous_directory) {
@@ -122,10 +124,12 @@ int seek(char ** command_args, char starting_directory[], char ** previous_direc
 
         if (isWhitepace) break;
 
-        struct FlagInfo fi = flagHandler(command_args[i], starting_directory, "-");
+        struct FlagInfo fi; fi.isFlag = 0; fi.flags = NULL;
+        // TODO : Handle error return
+        flagHandler(command_args[i], starting_directory, "-", &fi);
         struct PathInfo pi = pathHandler(command_args[i], starting_directory, previous_directory);
 
-        // This is either a flag
+        // This is a flag
         if (fi.isFlag) {
             posLast[0] = i;
 
@@ -178,6 +182,8 @@ int seek(char ** command_args, char starting_directory[], char ** previous_direc
         return 1;
     }
 
+    // TODO : e-flag scenario hardcode
+
     // Swap d and f flags
     if ((!dFlag) && (!fFlag)) {
         dFlag = 1;
@@ -195,7 +201,7 @@ int seek(char ** command_args, char starting_directory[], char ** previous_direc
     }
 
     // Call traverseDirectory
-    traverseDirectry(searchTerm, path, dFlag, fFlag, &directoryPath, &filePath);
+    traverseDirectory(searchTerm, path, dFlag, fFlag, &directoryPath, &filePath);
 
     // Handling the "-e" flag
     if (numMatchingFiles + numMatchingDirs == 1) {

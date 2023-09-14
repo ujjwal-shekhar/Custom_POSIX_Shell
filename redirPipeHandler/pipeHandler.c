@@ -23,7 +23,7 @@ int splitByPipe(char *command_details, char **command_details_split) {
     return num_commands;
 }
 
-int pipe_split(char *command_details, char **command_args, int isBackground, char **errorString, char starting_directory[], char **previous_directory, struct PipedCommandDetails *pcd) {
+int pipe_split(char *command_details, char **command_args, int isBackground, char starting_directory[], char **previous_directory, struct PipedCommandDetails *pcd) {
     // Split the command details by "|"
     char *command_details_split[4096];
     int num_commands = splitByPipe(command_details, command_details_split);
@@ -70,14 +70,14 @@ int pipe_split(char *command_details, char **command_args, int isBackground, cha
 
         // Check for redirection
         if (strstr(ca->command_details, "<") != NULL) {
-            replaceInputRedirect(ca, errorString, starting_directory, previous_directory);
+            replaceInputRedirect(ca, starting_directory, previous_directory);
         } 
         if (strstr(ca->command_details, ">") != NULL) {
-            replaceOutputRedirect(ca, errorString, starting_directory, previous_directory);
+            replaceOutputRedirect(ca, starting_directory, previous_directory);
         }
         if (strstr(ca->command_details, ">>") != NULL) {
             ca->outputAppend = 1;
-            replaceOutputRedirectAppend(ca, errorString, starting_directory, previous_directory);
+            replaceOutputRedirectAppend(ca, starting_directory, previous_directory);
         }
     }
 

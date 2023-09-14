@@ -50,4 +50,6 @@ int execute_foreground_process(pid_t shell_pid, struct PipedCommandDetails pcd, 
             wait(NULL);
         }
     }
+
+    return 0;
 }

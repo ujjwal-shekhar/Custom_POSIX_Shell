@@ -23,7 +23,10 @@ int peek(char ** command_args, char starting_directory[], char ** previous_direc
         if (isWhitepace) break;
 
 
-        struct FlagInfo fi = flagHandler(command_args[i], starting_directory, "-");
+        struct FlagInfo fi; fi.isFlag = 0; fi.flags = NULL;
+        // TODO : Handle error return
+        flagHandler(command_args[i], starting_directory, "-", &fi);
+
         struct PathInfo pi = pathHandler(command_args[i], starting_directory, previous_directory);
 
         // Check if this is a flag
