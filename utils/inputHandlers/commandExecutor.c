@@ -31,7 +31,7 @@ int executeCommand(char* commandName, int num_args, char *command_args[], char s
             return 1;
         } else {
             pid_t shell_pid = getpid();
-            return send_process_to_foreground(command_args, shell_pid);
+            return send_process_to_foreground(command_args, shell_pid, pl);
         }
     }
 

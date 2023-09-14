@@ -11,6 +11,12 @@ int execute_foreground_process(pid_t shell_pid, struct PipedCommandDetails pcd, 
         if (pid < 0) {
             perror("fork");
         } else if (pid == 0) {
+            // // Reset Ctrl + C
+            // signal(SIGINT, SIG_DFL);
+
+            // // Reset Ctrl + Z
+            // signal(SIGSTOP, SIG_DFL);
+
             struct CommandArgs ca = pcd.ca[job];
             ca.command_args[ca.num_args] = NULL;
             char* commandName = ca.command_args[0];

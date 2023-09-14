@@ -18,8 +18,9 @@ void update_background_status(struct ProcessList *pl) {
             // printf("Error in waitpid\n");
         } else if(pid == 0){
             // printf("Process %d is running\n", pl->backgroundProcesses[i].pid);
+            // printf("Process %d is running\n", pl->backgroundProcesses[i].pid);
             pl->backgroundProcesses[i].status = strdup("running");
-            continue;
+            // continue;
         } 
         else{
             // pl->backgroundProcesses[i].completed = 1;
@@ -90,6 +91,12 @@ int execute_background_process(pid_t shell_pid, struct CommandArgs ca, char * co
     if (pid < 0) {
         perror("fork");
     } else if (pid == 0) {
+        // // Reset Ctrl + C
+        // signal(SIGINT, SIG_DFL);
+
+        // // Reset Ctrl + Z
+        // signal(SIGSTOP, SIG_DFL);
+
         // Set the process group leader
         setpgid(0, 0); 
 

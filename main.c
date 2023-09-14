@@ -127,6 +127,12 @@ int main()
     // Keep accepting commands
     while (1)
     {
+        // // Ignore Ctrl + C
+        // signal(SIGINT, SIG_IGN);
+
+        // // Ignore Ctrl + Z
+        // signal(SIGSTOP, SIG_IGN);
+
         // Call the signal handler
         if (resetTimeTaken) {
             time_taken = 0.0;
@@ -216,6 +222,12 @@ int main()
                         if (pid < 0) {
                             perror("fork");
                         } else if (pid == 0) { // Child process code
+                            // // Reset Ctrl + C
+                            // signal(SIGINT, SIG_DFL);
+
+                            // // Reset Ctrl + Z
+                            // signal(SIGSTOP, SIG_DFL);
+                            
                             // Set the input and output to input_fd and output_fd
                             if (ca.input_fd != -1) {
                                 dup2(ca.input_fd, 0);
@@ -233,9 +245,13 @@ int main()
                             // Call execvp
                             execvp(commandName, ca.command_args);
 
+                            // printf("\033[31mERROR : %s is not a valid command\033[0m\n", commandName);
+                            fprintf(stderr, RED_COLOR);
+                            fprintf(stderr, "ERROR : %s is not a valid command\n", commandName);
+                            fprintf(stderr, RESET_COLOR);
+
                             exit(EXIT_FAILURE);                            
                             // Error handling
-                            printf("\033[31mERROR : %s is not a valid command\033[0m\n", commandName);
 
                         } else {
                             // Close the input and output file descriptors
