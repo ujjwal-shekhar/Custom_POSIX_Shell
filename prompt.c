@@ -1,5 +1,7 @@
 // #define _POSIX_SOURCE
-#include "headers.h"
+// #include "headers.h"
+
+#include "prompt.h"
 
 void prompt(char starting_directory[], char prevCommandName[], double timeTaken) {
     // Retrieve the host name

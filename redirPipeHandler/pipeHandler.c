@@ -1,4 +1,4 @@
-#include "../headers.h"
+#include "pipeHandler.h"
 
 int splitByPipe(char *command_details, char **command_details_split) {
     int num_commands = 0;

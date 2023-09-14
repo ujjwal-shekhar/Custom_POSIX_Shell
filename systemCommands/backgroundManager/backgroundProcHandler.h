@@ -1,7 +1,15 @@
 #ifndef BACKGROUND_MANAGER_H
 #define BACKGROUND_MANAGER_H
 
-#include "../../utils/inputHandlers/commandArgsHandler.h"
+#include "../../headers.h"
+
+#include "../../utils/customStructs.h"
+
+#include "../../utils/pathHandler.h"
+#include "../../utils/flagHandler.h"
+
+// #include "../../utils/inputHandlers/commandArgsHandler.h"
+// #include "../../utils/customStructs.h"
 
 // #define MAX_BACKGROUND_PROCESSES 10
 
@@ -18,12 +26,6 @@ I was thinking of maintaining a list of structs for this, where each element wou
 }
 */
 
-// struct ProcessDetails {
-//     pid_t pid;
-//     int completed; // bool
-//     int normallyExited ; // -1 : not exited, 0 : abnormally, 1 : normally
-//     char *commandName;
-// };
 
 void update_background_status();
 void add_background_process(pid_t pid, const char *command);

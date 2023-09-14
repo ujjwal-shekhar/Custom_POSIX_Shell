@@ -1,5 +1,10 @@
-#include "../headers.h"
+#include "seek.h"
 
+
+// #include "utils/errorHandler.h"
+// #include "utils/inputHandlers/commandExecutor.h"
+// #include "utils/inputHandlers/commandHandler.h"
+// #include "utils/inputHandlers/commandArgsHandler.h"
 // Usage of ChatGPT-3.5Turbo
     /*
     Prompt used :
@@ -127,8 +132,9 @@ int seek(char ** command_args, char starting_directory[], char ** previous_direc
         struct FlagInfo fi; fi.isFlag = 0; fi.flags = NULL;
         // TODO : Handle error return
         flagHandler(command_args[i], starting_directory, "-", &fi);
-        struct PathInfo pi = pathHandler(command_args[i], starting_directory, previous_directory);
 
+        struct PathInfo pi;
+        pathHandler(command_args[i], starting_directory, previous_directory, &pi);
         // This is a flag
         if (fi.isFlag) {
             posLast[0] = i;

@@ -1,4 +1,4 @@
-#include "../headers.h"
+#include "redirectionHandler.h"
 
 // Use of Github Copilot
 /*
@@ -23,7 +23,8 @@ int replaceInputRedirect(struct CommandArgs* ca, char starting_directory[], char
     }
 
     // Check if the the token after that is a path or not
-    struct PathInfo pi = pathHandler(ca->command_args[inputRedirectPos + 1], starting_directory, previous_directory);
+    struct PathInfo pi;
+    pathHandler(ca->command_args[inputRedirectPos + 1], starting_directory, previous_directory, &pi);
 
     if (!pi.isPath) {
         return 1;

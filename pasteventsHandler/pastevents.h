@@ -1,6 +1,8 @@
 #ifndef __PASTEVENTS_H
 #define __PASTEVENTS_H
 
+#include "../headers.h"
+
 int addEventToHistory(char * input);
 
 int showHistory();

@@ -17,51 +17,51 @@
 #include <netdb.h>
 #include <arpa/inet.h>
 
-#include "prompt.h"
 
-#include "warpHandler/warp.h"
+// #include "utils/customStructs.h"
 
-#include "peekHandler/peek.h"
-#include "seekHandler/seek.h"
+// #include "utils/pathHandler.h"
+// #include "utils/flagHandler.h"
+// #include "utils/errorHandler.h"
+// #include "utils/inputHandlers/commandExecutor.h"
+// #include "utils/inputHandlers/commandHandler.h"
+// #include "utils/inputHandlers/commandArgsHandler.h"
 
-#include "procloreHandler/proclore.h"
-#include "pingHandler/ping.h"
-#include "activitiesHandler/activities.h"
+// #include "warpHandler/warp.h"
+// #include "peekHandler/peek.h"
+// #include "seekHandler/seek.h"
 
-#include "pasteventsHandler/pastevents.h"
+// #include "procloreHandler/proclore.h"
+// #include "pingHandler/ping.h"
+// #include "activitiesHandler/activities.h"
 
-#include "systemCommands/backgroundManager/backgroundProcHandler.h"
-#include "systemCommands/foregroundManager/foregroundProcHandler.h"
+// #include "pasteventsHandler/pastevents.h"
 
-#include "utils/pathHandler.h"
-#include "utils/flagHandler.h"
-#include "utils/errorHandler.h"
-#include "utils/inputHandlers/commandHandler.h"
-#include "utils/inputHandlers/commandArgsHandler.h"
-#include "utils/inputHandlers/commandExecutor.h"
+// #include "systemCommands/backgroundManager/backgroundProcHandler.h"
+// #include "systemCommands/foregroundManager/foregroundProcHandler.h"
 
-#include "redirPipeHandler/pipeHandler.h"
-#include "redirPipeHandler/redirectionHandler.h"
+// #include "redirPipeHandler/pipeHandler.h"
+// #include "redirPipeHandler/redirectionHandler.h"
 
-#include "iManHandler/iManHandler.h"
+// #include "iManHandler/iManHandler.h"
 
 
-struct Command {
-    char * command_details;
-    int printProcId;
-} command;
+// struct Command {
+//     char * command_details;
+//     int printProcId;
+// } command;
 
-struct CommandList {
-    struct Command * commands;
-    int num_commands;
-} commandList;
+// struct CommandList {
+//     struct Command * commands;
+//     int num_commands;
+// } commandList;
 
-struct ProcessDetails {
-    pid_t pid;
-    int completed; // bool
-    int normallyExited ; // -1 : not exited, 0 : abnormally, 1 : normally
-    char *commandName;
-};
+// struct ProcessDetails {
+//     pid_t pid;
+//     int completed; // bool
+//     int normallyExited ; // -1 : not exited, 0 : abnormally, 1 : normally
+//     char *commandName;
+// };
 
 #define MAX_BACKGROUND_PROCESSES 10
 

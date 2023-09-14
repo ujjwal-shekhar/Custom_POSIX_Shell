@@ -1,6 +1,4 @@
-#include "../headers.h"
-
-#include "../headers.h"
+#include "flagHandler.h"
 
 // Modify the flagHandler function to return an integer value
 int flagHandler(char *command_arg, char starting_directory[], const char *prefix, struct FlagInfo *fi) {

@@ -1,4 +1,9 @@
-#include "../headers.h"
+#include "peek.h"
+
+// #include "utils/errorHandler.h"
+// #include "utils/inputHandlers/commandExecutor.h"
+// #include "utils/inputHandlers/commandHandler.h"
+// #include "utils/inputHandlers/commandArgsHandler.h"
 
 int compare(const void *a, const void *b) {
     return strcmp(*(const char **)a, *(const char **)b);
@@ -27,8 +32,9 @@ int peek(char ** command_args, char starting_directory[], char ** previous_direc
         // TODO : Handle error return
         flagHandler(command_args[i], starting_directory, "-", &fi);
 
-        struct PathInfo pi = pathHandler(command_args[i], starting_directory, previous_directory);
-
+        struct PathInfo pi;
+        pathHandler(command_args[i], starting_directory, previous_directory, &pi);
+        
         // Check if this is a flag
         if (fi.isFlag) {
             // The path must not come before the flag

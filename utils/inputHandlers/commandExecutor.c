@@ -1,4 +1,4 @@
-#include "../../headers.h"
+#include "commandExecutor.h"
 
 int checkUserCommand(char * commandName) {
     char * userCommandsList[] = {"warp\0", "peek\0", "pastevents\0", "proclore\0", "exit\0", "seek\0", "ping\0", "activities\0", "iMan\0", NULL};

@@ -1,6 +1,7 @@
 #ifndef FOREGROUND_MANAGER_H
 #define FOREGROUND_MANAGER_H
 
+#include "../../headers.h"
 #include "../../utils/inputHandlers/commandArgsHandler.h"
 #include "../../redirPipeHandler/pipeHandler.h"
 

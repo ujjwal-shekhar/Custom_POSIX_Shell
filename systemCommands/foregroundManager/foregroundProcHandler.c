@@ -1,4 +1,4 @@
-#include "../../headers.h"
+#include "foregroundProcHandler.h"
 
 int execute_foreground_process(pid_t shell_pid, struct PipedCommandDetails pcd, char* commandName, int num_args, char* command_details) {
     int pipe_fd[pcd.num_piped_commands-1][2];
@@ -11,9 +11,6 @@ int execute_foreground_process(pid_t shell_pid, struct PipedCommandDetails pcd, 
         if (pid < 0) {
             perror("fork");
         } else if (pid == 0) {
-
-            
-
             struct CommandArgs ca = pcd.ca[job];
             ca.command_args[ca.num_args] = NULL;
             char* commandName = ca.command_args[0];

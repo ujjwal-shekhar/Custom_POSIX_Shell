@@ -1,10 +1,8 @@
-#include "../headers.h"
+#include "pathHandler.h"
 
-struct PathInfo pathHandler(char *command_arg, char starting_directory[], char **previous_directory) {
-    struct PathInfo pi;
-    pi.isPath = 1;
-
-    printf("The command argument inside the pathHandler : %s\n", command_arg);
+int pathHandler(char *command_arg, char starting_directory[], char **previous_directory, struct PathInfo *pi) {
+    pi->isPath = 1;
+    pi->path = NULL; // Initialize the path to NULL
 
     // Check if the command_arg has "~"
     // Replace "~" with starting directory
@@ -25,11 +23,8 @@ struct PathInfo pathHandler(char *command_arg, char starting_directory[], char *
         // Replace the "-" symbol by the previous directory
         // If it is empty then don't replace
         if (strlen(*previous_directory) == 0) {
-            // fprintf(stderr, RED_COLOR);
-            // fprintf(stderr, "ERROR : No previous directory found\n");
-            // fprintf(stderr, RESET_COLOR);
-            pi.isPath = 0;
-            return pi;
+            pi->isPath = 0; // Error
+            return 0;
         }
 
         char *temp = (char *)malloc(strlen(*previous_directory) + strlen(command_arg));
@@ -37,6 +32,7 @@ struct PathInfo pathHandler(char *command_arg, char starting_directory[], char *
             fprintf(stderr, RED_COLOR);
             fprintf(stderr, MEMORY_ALLOC_ERROR);
             fprintf(stderr, RESET_COLOR);
+            pi->isPath = 0; // Error
             exit(EXIT_FAILURE);
         }
 
@@ -70,22 +66,20 @@ struct PathInfo pathHandler(char *command_arg, char starting_directory[], char *
     if (access(command_arg, F_OK) != 0) {
         // Return with error
         fprintf(stderr, RED_COLOR);
-        fprintf(stderr, "ERROR : The path is not valid\n");
+        fprintf(stderr, "ERROR: The path is not valid\n");
         fprintf(stderr, RESET_COLOR);
-        pi.isPath = 0;
-        return pi;
+        pi->isPath = 0; // Error
+        return 0;
     } else {
-        pi.isPath = 1;
-        pi.path = (char *)malloc(strlen(command_arg) + 1);
-        if (pi.path == NULL) {
+        pi->path = (char *)malloc(strlen(command_arg) + 1);
+        if (pi->path == NULL) {
             fprintf(stderr, RED_COLOR);
             fprintf(stderr, MEMORY_ALLOC_ERROR);
             fprintf(stderr, RESET_COLOR);
             exit(EXIT_FAILURE);
         }
 
-        strcpy(pi.path, command_arg);
+        strcpy(pi->path, command_arg);
+        return 0;
     }
-
-    return pi;
 }

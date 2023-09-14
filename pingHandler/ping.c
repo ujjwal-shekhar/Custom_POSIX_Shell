@@ -1,4 +1,4 @@
-#include "../headers.h"
+#include "ping.h"
 
 /*
 ping command is used to send signals to processes. 

@@ -1,4 +1,4 @@
-#include "../headers.h"
+#include "errorHandler.h"
 
 void errorHandler(const char * newError, char ** errorString) {
     *errorString = (char *) malloc(strlen(newError) + 1);

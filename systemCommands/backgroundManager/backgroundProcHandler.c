@@ -1,4 +1,9 @@
-#include "../../headers.h"
+#include "backgroundProcHandler.h"
+
+// #include "utils/errorHandler.h"
+// #include "utils/inputHandlers/commandExecutor.h"
+// #include "utils/inputHandlers/commandHandler.h"
+// #include "utils/inputHandlers/commandArgsHandler.h"
 
 struct ProcessDetails backgroundProcesses[MAX_BACKGROUND_PROCESSES + 1];
 int numBackgroundProcesses = 0;

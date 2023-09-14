@@ -1,5 +1,32 @@
 #include "headers.h"
+#include "prompt.h"
 
+// #include "utils/customStructs.h"
+
+// #include "utils/pathHandler.h"
+// #include "utils/flagHandler.h"
+// #include "utils/errorHandler.h"
+// #include "utils/inputHandlers/commandExecutor.h"
+// #include "utils/inputHandlers/commandHandler.h"
+// #include "utils/inputHandlers/commandArgsHandler.h"
+
+#include "warpHandler/warp.h"
+#include "peekHandler/peek.h"
+#include "seekHandler/seek.h"
+
+#include "procloreHandler/proclore.h"
+#include "pingHandler/ping.h"
+#include "activitiesHandler/activities.h"
+
+#include "pasteventsHandler/pastevents.h"
+
+#include "systemCommands/backgroundManager/backgroundProcHandler.h"
+#include "systemCommands/foregroundManager/foregroundProcHandler.h"
+
+#include "redirPipeHandler/pipeHandler.h"
+#include "redirPipeHandler/redirectionHandler.h"
+
+#include "iManHandler/iManHandler.h"
 // USAGE OF CHATGPT
 // A lot of the signal handling came
 // from chatgpt
@@ -66,6 +93,8 @@ int main()
         char input[4096];
         prompt(starting_directory, prevCommandName, time_taken);
         fgets(input, 4096, stdin);
+
+
         replacePastEventCommands(input);
 
         char rawInput[4096]; // Save the input for later use
@@ -74,7 +103,17 @@ int main()
         int dontAddToHistory = 0;
         int errorOccured = 0;
 
-        struct CommandList cl = tokenizeInput(input);
+        // struct CommandList cl = tokenizeInput(input);
+        struct CommandList cl;
+        int status = tokenizeInput(input, &cl);
+
+        // TODO : Handle the error val returned
+        // if (status == 0) {
+        //     // Successfully tokenized input
+        //     // Access the result in cl.num_commands and cl.commands
+        // } else {
+        //     // Handle error based on the value of 'status'
+        // }
         int numCommands = cl.num_commands;
         struct Command *commands = cl.commands;
 
