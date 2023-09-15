@@ -37,14 +37,18 @@ int proclore(char **command_args, char starting_directory[], char **previous_dir
     FILE *statmFile = fopen(statmPath, "r");
 
     if (statFile == NULL || statmFile == NULL) {
+        fprintf(stderr, RED_COLOR);
         perror("Error opening stat or statm file");
+        fprintf(stderr, RESET_COLOR);
         exit(EXIT_FAILURE);
     }
 
     // Read and parse the stat file
     char statBuffer[MAX_PATH_LEN + 1];
     if (fgets(statBuffer, sizeof(statBuffer), statFile) == NULL) {
+        fprintf(stderr, RED_COLOR);
         perror("Error reading stat file");
+        fprintf(stderr, RESET_COLOR);
         exit(EXIT_FAILURE);
     }
 
@@ -52,7 +56,7 @@ int proclore(char **command_args, char starting_directory[], char **previous_dir
     int processGroup;
     unsigned long vmSize;
 
-    sscanf(statBuffer, "%*d %*s %c %d", &processStatus, &processGroup);
+    sscanf(statBuffer, "%*d %*s %c %*d %d", &processStatus, &processGroup);
 
     // Read and parse the statm file
     if (fscanf(statmFile, "%lu", &vmSize) != 1) {

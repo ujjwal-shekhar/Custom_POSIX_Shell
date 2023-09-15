@@ -10,6 +10,8 @@
 // #include "utils/inputHandlers/commandHandler.h"
 // #include "utils/inputHandlers/commandArgsHandler.h"
 
+// #include "utils/rawModeHandler.h"
+
 #include "warpHandler/warp.h"
 #include "peekHandler/peek.h"
 #include "seekHandler/seek.h"
@@ -75,12 +77,15 @@ void sigchld_handler(int signo) {
         update_background_status(&globalProcessList);
     } else if (signo == SIGCONT) {
         update_background_status(&globalProcessList);
-    } else if (signo == SIGSTOP) {
+    } else if (signo == SIGTSTP) {
         update_background_status(&globalProcessList);
     }
 }
 
 void signal_setup() {
+    signal(SIGTSTP, SIG_IGN);
+    signal(SIGINT, SIG_IGN);
+    signal(SIGTTOU, SIG_IGN);
     struct sigaction sa;
     sa.sa_handler = sigchld_handler;
     sa.sa_flags = SA_RESTART;
@@ -127,12 +132,6 @@ int main()
     // Keep accepting commands
     while (1)
     {
-        // // Ignore Ctrl + C
-        // signal(SIGINT, SIG_IGN);
-
-        // // Ignore Ctrl + Z
-        // signal(SIGSTOP, SIG_IGN);
-
         // Call the signal handler
         if (resetTimeTaken) {
             time_taken = 0.0;
@@ -141,9 +140,61 @@ int main()
 
         // Print appropriate prompt with username, systemname and directory before accepting input
         char input[4096];
-        prompt(starting_directory, prevCommandName, time_taken);
-        fgets(input, 4096, stdin);
+        prompt(starting_directory, prevCommandName, time_taken, &resetTimeTaken);
+        // fgets(input, 4096, stdin);
+        char c;
+        setbuf(stdout, NULL);
+        enableRawMode();
+        memset(input, '\0', 100);
+        int pt = 0;
+        while (read(STDIN_FILENO, &c, 1) == 1) {
+            if (iscntrl(c)) {
+                if (c == 10) {printf("\n"); break;}
+                else if (c == 27) {
+                    char buf[3];
+                    buf[2] = 0;
+                    // if (read(STDIN_FILENO, buf, 2) == 2) { // length of escape code
+                    //     printf("");
+                    // }
+                } else if (c == 127) { // backspace
+                    if (pt > 0) {
+                        if (input[pt-1] == 9) {
+                            for (int i = 0; i < 7; i++) {
+                                printf("\b");
+                            }
+                        }
+                        input[--pt] = '\0';
+                        printf("\b \b");
+                    }
+                } else if (c == 9) { // TAB character
+                    input[pt++] = c;
+                    for (int i = 0; i < 8; i++) { // TABS should be 8 spaces
+                        printf(" ");
+                    }
+                } else if (c == 4) {
+                    printf("\nGracefully exiting...\n");
+                    
+                    // Iterate over the process list
+                    // and kill every process
+                    for (int i = 0; i < globalProcessList.numProcesses; i++) {
+                        kill(globalProcessList.backgroundProcesses[i].pid, SIGKILL);
+                    }
 
+                    sleep(1.5);
+
+                    printf("EXITED, But couldn't shake her : (\n");
+                    exit(0);
+                } else {
+                    printf("%d\n", c);
+                }
+            } else {
+                input[pt++] = c;
+                printf("%c", c);
+            }
+        }
+        if(strlen(input) == 0) continue;
+        disableRawMode();
+        // printf("\nInput Read: [%s]\n", input);
 
         replacePastEventCommands(input);
 
@@ -156,6 +207,12 @@ int main()
         // struct CommandList cl = tokenizeInput(input);
         struct CommandList cl;
         int status = tokenizeInput(input, &cl);
+
+        if (status) {
+            fprintf(stderr, RED_COLOR);
+            fprintf(stderr, "Couldn't tokenize the input\n");
+            fprintf(stderr, RESET_COLOR);
+        }
 
         // TODO : Handle the error val returned
         // if (status == 0) {
@@ -178,6 +235,19 @@ int main()
             char *command_details = commands[j].command_details;
             char *command_args[4096];
 
+            // Check if command details is just whitespace
+            int isWhiteSpace = 1;
+            for (int i = 0; i < strlen(command_details); i++) {
+                if (!isspace(command_details[i])) {
+                    isWhiteSpace = 0;
+                    break;
+                }
+            }
+
+            if (isWhiteSpace) {
+                continue;
+            }
+
             struct PipedCommandDetails pcd;
 
             pipe_split(command_details, command_args, isBackground, starting_directory, &previous_directory, &pcd);
@@ -195,7 +265,11 @@ int main()
             //     printf("\n");
             // }
 
+
             struct CommandArgs ca = pcd.ca[0];
+            if (ca.command_args[0] == NULL) {
+                break;
+            }
             ca.command_args[ca.num_args] = NULL;
             char* commandName = ca.command_args[0];
             int num_args = ca.num_args;    
@@ -222,12 +296,16 @@ int main()
                         if (pid < 0) {
                             perror("fork");
                         } else if (pid == 0) { // Child process code
-                            // // Reset Ctrl + C
-                            // signal(SIGINT, SIG_DFL);
+                            // Set the process group leader
+                            // setpgid(0, 0);
+                            // tcsetpgrp(STDIN_FILENO, getpid());
+                            // Reset Ctrl + C
+                            signal(SIGINT, SIG_DFL);
 
-                            // // Reset Ctrl + Z
-                            // signal(SIGSTOP, SIG_DFL);
-                            
+                            // Reset Ctrl + Z
+                            signal(SIGTSTP, SIG_DFL);
+                            signal(SIGTTOU, SIG_DFL);
+                            signal(SIGCHLD, SIG_DFL);
                             // Set the input and output to input_fd and output_fd
                             if (ca.input_fd != -1) {
                                 dup2(ca.input_fd, 0);
@@ -235,9 +313,6 @@ int main()
                             if (ca.output_fd != -1) {
                                 dup2(ca.output_fd, 1);
                             }
-
-                            // Set the process group leader
-                            setpgid(0, 0);
 
                             // Make the last entry of command_args as NULL
                             ca.command_args[num_args] = NULL;
@@ -250,10 +325,9 @@ int main()
                             fprintf(stderr, "ERROR : %s is not a valid command\n", commandName);
                             fprintf(stderr, RESET_COLOR);
 
-                            exit(EXIT_FAILURE);                            
-                            // Error handling
-
+                            exit(EXIT_FAILURE);
                         } else {
+                            // tcsetpgrp(STDIN_FILENO, getpid());
                             // Close the input and output file descriptors
                             if (ca.input_fd != 0) {
                                 close(ca.input_fd);
@@ -265,7 +339,7 @@ int main()
                             // Maintain amount of time taken
                             time_t start = time(NULL);
                             int status;
-                            if (waitpid(pid, &status, 0) > 0) {
+                            if (waitpid(pid, &status, WUNTRACED) > 0) {
                                 // Restore stdin and stdout
                                 dup2(STDIN_FILENO, 0);
                                 dup2(STDOUT_FILENO, 1);
@@ -291,7 +365,7 @@ int main()
                         }
                     }                
                 } else { // Most of this code is purely ChatGPT-ed
-                    execute_foreground_process(shell_pid, pcd, commandName, num_args, command_details);
+                    execute_foreground_process(shell_pid, pcd, commandName, num_args, command_details, starting_directory, &previous_directory, &prevCommDetails, &globalProcessList);
                 }
             }
         }

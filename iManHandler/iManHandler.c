@@ -3,36 +3,39 @@
 #define MAX_BUFFER_SIZE 1024
 
 // Completely taken from ChatGPT
+// This file breathes in GPT
 
-// // Function to clean and extract man page content
-// void cleanAndExtractManPage(const char* html) {
-//     const char* start = strstr(html, "<PRE>");
-//     const char* end = strstr(html, "</PRE>");
 
-//     if (start != NULL && end != NULL) {
-//         start += 5; // Skip "<PRE>"
-//         int len = end - start;
+// Function to strip HTML tags from a string
+void stripHtmlTags(char *input) {
+    int insideTag = 0;
+    char *output = input;
 
-//         // Process and print the extracted content
-//         while (len > 0) {
-//             if (*start == '<') {
-//                 // Skip HTML tags
-//                 while (*start != '>' && len > 0) {
-//                     start++;
-//                     len--;
-//                 }
-//                 if (*start == '>') {
-//                     start++;
-//                     len--;
-//                 }
-//             } else {
-//                 putchar(*start);
-//                 start++;
-//                 len--;
-//             }
-//         }
-//     }
-// }
+    for (int i = 0; input[i]; i++) {
+        if (input[i] == '<') {
+            insideTag = 1;
+            continue;
+        }
+        if (input[i] == '>') {
+            insideTag = 0;
+            continue;
+        }
+        if (!insideTag) {
+            *output = input[i];
+            output++;
+        }
+    }
+    *output = '\0';
+}
+
+// Function to remove everything before "NAME"
+void removeBeforeName(char *input) {
+    char *namePos = strstr(input, "NAME\n");
+    if (namePos != NULL) {
+        // Move the pointer to the beginning of "NAME" and remove everything before it
+        memmove(input, namePos, strlen(namePos));
+    }
+}
 
 // Function to fetch and display a man page from http://man.he.net/
 int iman(char ** command_args) {
@@ -90,6 +93,10 @@ int iman(char ** command_args) {
 
     while ((bytesRead = recv(sockfd, response, sizeof(response) - 1, 0)) > 0) {
         response[bytesRead] = '\0';
+        // Remove everything before "NAME"
+        removeBeforeName(response);
+        // Strip HTML tags and print the content
+        stripHtmlTags(response);
         printf("%s", response);
     }
 

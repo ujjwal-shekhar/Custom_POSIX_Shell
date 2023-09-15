@@ -24,7 +24,7 @@ int pathHandler(char *command_arg, char starting_directory[], char **previous_di
         // If it is empty then don't replace
         if (strlen(*previous_directory) == 0) {
             pi->isPath = 0; // Error
-            return 0;
+            return 1;
         }
 
         char *temp = (char *)malloc(strlen(*previous_directory) + strlen(command_arg));
@@ -69,7 +69,7 @@ int pathHandler(char *command_arg, char starting_directory[], char **previous_di
         fprintf(stderr, "ERROR: The path is not valid\n");
         fprintf(stderr, RESET_COLOR);
         pi->isPath = 0; // Error
-        return 0;
+        return 1;
     } else {
         pi->path = (char *)malloc(strlen(command_arg) + 1);
         if (pi->path == NULL) {

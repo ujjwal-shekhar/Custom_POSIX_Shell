@@ -22,6 +22,7 @@ the code is 40% copilot and 60% me
 */
 
 int numMatchingFiles = 0, numMatchingDirs = 0;
+int basePathLength = 0;
 
 int traverseDirectory(char * searchTerm, char * path, int dFlag, int fFlag, char ** directoryPath, char ** filePath) {
     // Open the directory
@@ -44,7 +45,7 @@ int traverseDirectory(char * searchTerm, char * path, int dFlag, int fFlag, char
                     // with respect to the starting directory
                     char relative_path[4096];
                     snprintf(relative_path, sizeof(relative_path), "%s/%s", path, entry->d_name);
-                    printf("\033[34;1m%s\033[0m\n", relative_path + strlen(path) + 1);
+                    printf("\033[34;1m.%s\033[0m\n", relative_path + basePathLength);
 
                     // Save this relative path to directoryPath
                     // printf("The path is %s\n", *directoryPath);  
@@ -91,7 +92,7 @@ int traverseDirectory(char * searchTerm, char * path, int dFlag, int fFlag, char
                     // Construct the relative path to the file or directory
                     char relative_path[4096];
                     snprintf(relative_path, sizeof(relative_path), "%s/%s", path, entry->d_name);
-                    printf("\033[32;1m%s\033[0m\n", relative_path + strlen(path) + 1);
+                    printf("\033[32;1m.%s\033[0m\n", relative_path + basePathLength);
 
                     // Save this relative path to filePath
                     strcat(path, relative_path + strlen(path));
@@ -130,11 +131,20 @@ int seek(char ** command_args, char starting_directory[], char ** previous_direc
         if (isWhitepace) break;
 
         struct FlagInfo fi; fi.isFlag = 0; fi.flags = NULL;
-        // TODO : Handle error return
-        flagHandler(command_args[i], starting_directory, "-", &fi);
+        if (flagHandler(command_args[i], starting_directory, "-", &fi)) {
+            fprintf(stderr, RED_COLOR);
+            fprintf(stderr, "Invalid flag : %s\n", command_args[i]);
+            fprintf(stderr, RESET_COLOR);
+            return 1;
+        }
 
         struct PathInfo pi;
-        pathHandler(command_args[i], starting_directory, previous_directory, &pi);
+        if (pathHandler(command_args[i], starting_directory, previous_directory, &pi)) {
+            fprintf(stderr, RED_COLOR);
+            fprintf(stderr, "Invalid path : %s\n", command_args[i]);
+            fprintf(stderr, RESET_COLOR);
+            return 1;
+        }
         // This is a flag
         if (fi.isFlag) {
             posLast[0] = i;
@@ -171,6 +181,8 @@ int seek(char ** command_args, char starting_directory[], char ** previous_direc
         }
     }
 
+    basePathLength = strlen(path);
+
     if (!(
         (posLast[0] < posLast[1]) &&
         (posLast[0] < posLast[2]) &&
@@ -178,7 +190,7 @@ int seek(char ** command_args, char starting_directory[], char ** previous_direc
         (posLast[2] != -1)
     )) {
         fprintf(stderr, RED_COLOR);
-        fprintf(stderr, "SYNTAX ERROR : Correct Usage : peek <flags> <path/name>\n");
+        fprintf(stderr, "SYNTAX ERROR : Correct Usage : seek <flags> <path/name>\n");
         fprintf(stderr, RESET_COLOR);
         return 1;
     } else if (dFlag && fFlag) {
@@ -187,8 +199,6 @@ int seek(char ** command_args, char starting_directory[], char ** previous_direc
         fprintf(stderr, RESET_COLOR);
         return 1;
     }
-
-    // TODO : e-flag scenario hardcode
 
     // Swap d and f flags
     if ((!dFlag) && (!fFlag)) {

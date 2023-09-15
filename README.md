@@ -7,6 +7,23 @@
 - Assumed that I dont have to handle stuff like `COMMAND &> FILE`.
 - Assuming that `warp` is equal to `warp ~`
 
+### Commands overview
+| Commands           | Forked or not | Input Redirection | Output Redirection              | Piping status         |
+| ------------------ | ------------- | ----------------- | ------------------------------- | --------------------- |
+| `activities`       | no            | no                | no                              | not piped             |
+| `proclore`         | yes           | no                | no                              | not piped             |
+| `bg`               | no            | no                | no                              | not piped             |
+| `fg`               | no            | no                | no                              | not piped             |
+| `iMan`             | yes           | no                | no                              | not piped             |
+| `neonate `         | yes           | no                | no                              | not piped             |
+| `ping`             | yes           | no                | no                              | not piped             |
+| `warp`             | no            | no                | no                              | not piped             |
+| `peek`             | yes           | no                | no                              | not piped             |
+| `seek`             | no            | no                | no                              | not piped             |
+| `pastevents`       | yes           | no                | no                              | not piped             |
+| `pastevents purge` | yes           | no                | no                              | not piped             |
+| builtins           | yes           | yes               | yes                             | piped
+
 # Usage of AI tools
 - The `utils` directory is almost entirely my idea and the only help that AI tools did there was to auto complete some of the grunt code
 - `prompt.c` was mostly written by me with ome help to figure out the `hostname` from ChatGPT.

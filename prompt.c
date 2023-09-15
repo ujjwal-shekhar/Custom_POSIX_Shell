@@ -3,7 +3,7 @@
 
 #include "prompt.h"
 
-void prompt(char starting_directory[], char prevCommandName[], double timeTaken) {
+void prompt(char starting_directory[], char prevCommandName[], double timeTaken, int * resetTimeTaken) {
     // Retrieve the host name
     char hostname[256];
 
@@ -46,6 +46,7 @@ void prompt(char starting_directory[], char prevCommandName[], double timeTaken)
     // then print the prevCommandName : time taken
     if (timeTaken > 2) {
         printf(" \033[92m%s : %.0lfs\033[0m", prevCommandName, timeTaken);
+        *resetTimeTaken = 1;
     }
 
     printf("> ");

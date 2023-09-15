@@ -3,6 +3,6 @@
 
 #include "headers.h"
 
-void prompt(char starting_directory[], char prevCommandName[], double timeTaken);
+void prompt(char starting_directory[], char prevCommandName[], double timeTaken, int * resetTimeTaken);
 
 #endif

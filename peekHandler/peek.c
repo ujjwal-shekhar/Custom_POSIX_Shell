@@ -29,10 +29,21 @@ int peek(char ** command_args, char starting_directory[], char ** previous_direc
 
 
         struct FlagInfo fi; fi.isFlag = 0; fi.flags = NULL;
-        // TODO : Handle error return
+        // if (flagHandler(command_args[i], starting_directory, "-", &fi)) {
+        //     fprintf(stderr, RED_COLOR);
+        //     fprintf(stderr, "Invalid flag : %s\n", command_args[i]);
+        //     fprintf(stderr, RESET_COLOR);
+        //     return 1;
+        // }
         flagHandler(command_args[i], starting_directory, "-", &fi);
 
         struct PathInfo pi;
+        // if (pathHandler(command_args[i], starting_directory, previous_directory, &pi)) {
+        //     fprintf(stderr, RED_COLOR);
+        //     fprintf(stderr, "Invalid path : %s\n", command_args[i]);
+        //     fprintf(stderr, RESET_COLOR);
+        //     return 1;
+        // }
         pathHandler(command_args[i], starting_directory, previous_directory, &pi);
         
         // Check if this is a flag
@@ -90,7 +101,7 @@ int peek(char ** command_args, char starting_directory[], char ** previous_direc
             fprintf(stderr, RESET_COLOR);
             return 1;
         }
-        if (listFlag) printf("total %d\n", n); // TODO : Fix this number
+        // if (listFlag) printf("total %d\n", n); // TODO : Fix this number
         
         for (int k = 0; k < n; k++) {
             if ((!allFlag) && (entry[k]->d_name[0] == '.')) continue;

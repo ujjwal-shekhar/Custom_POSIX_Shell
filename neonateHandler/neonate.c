@@ -4,25 +4,25 @@
 
 // All of this is completely ChatGPT-ed
 
-void die(const char *s) {
-    perror(s);
-    exit(1);
-}
+// void die(const char *s) {
+//     perror(s);
+//     exit(1);
+// }
 
-struct termios orig_termios;
+// struct termios orig_termios;
 
-void disableRawMode() {
-    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios) == -1)
-        die("tcsetattr");
-}
+// void disableRawMode() {
+//     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &orig_termios) == -1)
+//         die("tcsetattr");
+// }
 
-void enableRawMode() {
-    if (tcgetattr(STDIN_FILENO, &orig_termios) == -1) die("tcgetattr");
-    atexit(disableRawMode);
-    struct termios raw = orig_termios;
-    raw.c_lflag &= ~(ICANON | ECHO);
-    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) die("tcsetattr");
-}
+// void enableRawMode() {
+//     if (tcgetattr(STDIN_FILENO, &orig_termios) == -1) die("tcgetattr");
+//     atexit(disableRawMode);
+//     struct termios raw = orig_termios;
+//     raw.c_lflag &= ~(ICANON | ECHO);
+//     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw) == -1) die("tcsetattr");
+// }
 
 void printFifthFieldFromLoadAvg() {
     FILE *loadavg_file = fopen("/proc/loadavg", "r");
@@ -70,7 +70,7 @@ int neonate(char ** command_args) {
 
     char c;
     int pid = -1;
-    int print_flag = 1; // Flag to control printing
+    volatile int print_flag = 1; // Flag to control printing
 
     while (1) {
         setbuf(stdout, NULL);
@@ -81,6 +81,7 @@ int neonate(char ** command_args) {
         if (new_pid == -1) {
             die("fork");
         } else if (new_pid == 0) {
+            setpgid(0, 0);
             // Child process
             pid = getpid();
             while (1) {
@@ -89,6 +90,8 @@ int neonate(char ** command_args) {
                     sleep(time_arg);
                 }
             }   
+
+            exit(EXIT_FAILURE);
         } else {
             // Parent process
             while (1) {
@@ -96,10 +99,10 @@ int neonate(char ** command_args) {
                     if (c == 'x') {
                         // Toggle the print flag to stop printing
                         print_flag = 0;
-                        kill(new_pid, SIGTERM); // Send SIGTERM to child process
+                        kill(new_pid, SIGKILL); // Send SIGTERM to child process
                         waitpid(new_pid, NULL, 0); // Wait for child process to exit
                         disableRawMode();
-                        exit(0);
+                        return 0;
                     }
                 }
             }

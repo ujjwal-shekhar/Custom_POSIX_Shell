@@ -91,11 +91,11 @@ int execute_background_process(pid_t shell_pid, struct CommandArgs ca, char * co
     if (pid < 0) {
         perror("fork");
     } else if (pid == 0) {
-        // // Reset Ctrl + C
-        // signal(SIGINT, SIG_DFL);
+        // Reset Ctrl + C
+        signal(SIGINT, SIG_DFL);
 
-        // // Reset Ctrl + Z
-        // signal(SIGSTOP, SIG_DFL);
+        // Reset Ctrl + Z
+        signal(SIGTSTP, SIG_DFL);
 
         // Set the process group leader
         setpgid(0, 0); 

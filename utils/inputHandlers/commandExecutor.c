@@ -1,7 +1,7 @@
 #include "commandExecutor.h"
 
 int checkUserCommand(char * commandName) {
-    char * userCommandsList[] = {"warp\0", "peek\0", "pastevents\0", "proclore\0", "exit\0", "seek\0", "ping\0", "activities\0", "iMan\0", "fg\0", "bg\0", NULL};
+    char * userCommandsList[] = {"warp\0", "peek\0", "pastevents\0", "proclore\0", "exit\0", "seek\0", "ping\0", "activities\0", "iMan\0", "neonate\0", "fg\0", "bg\0", NULL};
     
     // Check if the commandName is one of the the userCommandsList
     int isUserCommand = 0;
@@ -48,7 +48,10 @@ int executeCommand(char* commandName, int num_args, char *command_args[], char s
     // Check if neonate was entered
     else if (strncmp(commandName, "neonate\0", 8) == 0) {
         // Check if there were no more than 2 arguments
-        if (num_args > 3) {
+        if (num_args != 3) {
+            fprintf(stderr, RED_COLOR);
+            fprintf(stderr, "SYNTAX ERROR : Usage : neonate -n <time_arg>\n");
+            fprintf(stderr, RESET_COLOR);
             return 1;
         } else {
             return neonate(command_args);
@@ -99,8 +102,7 @@ int executeCommand(char* commandName, int num_args, char *command_args[], char s
     else if (strncmp(commandName, "warp\0", 5) == 0) {
         // Check if the first argument is empty
         if (command_args[1] == NULL) {
-            // command_args[1] = ".";
-            strcpy(command_args[1], ".");
+            command_args[1] = strdup("~");
             command_args[2] = NULL;
         } 
         
@@ -115,7 +117,7 @@ int executeCommand(char* commandName, int num_args, char *command_args[], char s
 
         if (isWhiteSpace) {
             // command_args[1] = ".";
-            strcpy(command_args[1], ".");
+            command_args[1] = strdup("~");
             command_args[2] = NULL;
         }
         return warp(command_args, starting_directory, previous_directory);
@@ -134,6 +136,11 @@ int executeCommand(char* commandName, int num_args, char *command_args[], char s
     // Check if `seek` command was entered
     else if (strncmp(commandName, "seek\0", 5) == 0) {
         // Check if there were no more than 4 arguments
+        if (num_args == 2) {
+            // Make the 3rd arg = "~"
+            command_args[2] = strdup("~");
+            command_args[3] = NULL;
+        }
         if (num_args > 6) {
             return 1;
         } else {
