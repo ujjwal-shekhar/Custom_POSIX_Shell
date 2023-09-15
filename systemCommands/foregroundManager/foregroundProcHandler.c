@@ -10,16 +10,11 @@ int execute_foreground_process(pid_t shell_pid, struct PipedCommandDetails pcd, 
         ca.command_args[ca.num_args] = NULL;
         char* commandName = ca.command_args[0];
 
-        if (checkUserCommand(commandName)) {
-            // int erroneousFlag = executeCommand(commandName, num_args, ca.command_args, starting_directory, previous_directory, prevCommDetails, pl);
-        
-            // if (erroneousFlag) {
-            //     return 1;
-            // }
-            perror("I haven't done this lol");
-            return 1;
+        // if (checkUserCommand(commandName)) {
+        //     perror("I haven't done this lol");
+        //     return 1;
 
-        } else {
+        // } else {
             pid_t pid = fork();
 
             if (pid < 0) {
@@ -45,8 +40,11 @@ int execute_foreground_process(pid_t shell_pid, struct PipedCommandDetails pcd, 
                 } else if (ca.output_fd != -1) {
                     dup2(ca.output_fd, 1);
                 }
-
-                execvp(commandName, ca.command_args);
+                if (checkUserCommand(commandName)) {
+                    int erroneousFlag = executeCommand(commandName, num_args, ca.command_args, starting_directory, previous_directory, prevCommDetails, pl);
+                } else {
+                    execvp(commandName, ca.command_args);
+                }
 
                 exit(EXIT_FAILURE);
             } 
@@ -63,7 +61,7 @@ int execute_foreground_process(pid_t shell_pid, struct PipedCommandDetails pcd, 
                 }
                 wait(NULL);
             }
-        }
+        // }
 
     }
 
